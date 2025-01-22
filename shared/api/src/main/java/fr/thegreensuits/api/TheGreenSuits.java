@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import fr.thegreensuits.api.config.RedisConfig;
+import fr.thegreensuits.api.player.PlayerManager;
 import lombok.Getter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -47,7 +48,9 @@ public abstract class TheGreenSuits implements Closeable {
     // TODO
   }
 
-  public void setupRedis(RedisConfig redisConfig) {
+  public abstract PlayerManager getPlayerManager();
+
+  private void setupRedis(RedisConfig redisConfig) {
     if (redisConfig.isEnabled()) {
       ClassLoader previous = Thread.currentThread().getContextClassLoader();
       Thread.currentThread().setContextClassLoader(Jedis.class.getClassLoader());

@@ -2,12 +2,10 @@ package fr.thegreensuits.api.player;
 
 import java.util.UUID;
 
-import lombok.Getter;
-
 public abstract class Player {
-  @Getter()
-  private UUID id;
+  public abstract UUID getUniqueId();
 
-  @Getter()
-  private String effectiveName, displayName;
+  public abstract String getEffectiveName();
+
+  public abstract String getDisplayName();
 }

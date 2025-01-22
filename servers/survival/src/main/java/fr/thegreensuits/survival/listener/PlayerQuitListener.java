@@ -1,4 +1,4 @@
-package fr.thegreensuits.folia_survival.listener;
+package fr.thegreensuits.survival.listener;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

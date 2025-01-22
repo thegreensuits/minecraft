@@ -1,0 +1,7 @@
+name: Core
+version: "1.0"
+
+main: fr.thegreensuits.core.Core
+
+api: "1.21.4"
+api-version: 1.21

@@ -1,9 +1,3 @@
-java {
-  toolchain {
-    languageVersion.set(JavaLanguageVersion.of(17))
-  }
-}
-
 dependencies {
   implementation("redis.clients:jedis:5.2.0")
 
