@@ -38,17 +38,8 @@ subprojects {
     }
   }
 
-  /* tasks {
-    register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
-      archiveClassifier.set("all")
-      dependencies {
-        include(dependency("com.google.guava:guava:31.1-jre"))
-      }
-      relocate("com.google.common", "fr.thegreensuits.libs.common")
-    }
-
-    build {
-      dependsOn("shadowJar")
-    }
-  } */
+  tasks.withType<JavaCompile>().configureEach {
+    options.encoding = "UTF-8"
+    options.release.set(21)
+  }
 }

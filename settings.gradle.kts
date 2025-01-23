@@ -4,7 +4,7 @@ include("shared:api")
 
 // - Commons subprojects
 include("core")
-// include("proxy")
+include("proxy")
 
 // - Servers subprojects
 include("servers:survival")

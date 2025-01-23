@@ -1,4 +1,16 @@
+repositories {
+  maven("https://repo.papermc.io/repository/maven-public/")
+}
+
 dependencies {
+  // - Velocity
+  shadow("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
+  annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
+
+  // - Paper
+  shadow("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+
+  // - Jedis
   implementation("redis.clients:jedis:5.2.0")
 
   // - Commons

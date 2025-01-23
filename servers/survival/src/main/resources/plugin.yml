@@ -6,5 +6,10 @@ main: fr.thegreensuits.survival.Survival
 api: "1.21.4"
 api-version: 1.21
 
+commands:
+  clan:
+    description: "Commande pour gérer les clans"
+    usage: "§c/clan <create|delete|invite|kick|leave|list|info>"
+
 depend:
   - Core

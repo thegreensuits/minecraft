@@ -3,12 +3,8 @@ package fr.thegreensuits.survival;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import fr.thegreensuits.survival.handler.SurvivalJoinHandler;
-
 import fr.thegreensuits.api.TheGreenSuits;
 import fr.thegreensuits.api.utils.commons.Priority;
-import fr.thegreensuits.survival.listener.AsyncChatListener;
-import fr.thegreensuits.survival.listener.PlayerJoinListener;
-import fr.thegreensuits.survival.listener.PlayerQuitListener;
 
 public class Survival extends JavaPlugin {
   public static Survival _INSTANCE;
