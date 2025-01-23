@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Download custom plugins (replace with your actual plugin URLs)
-#RUN wget https://example.com/plugins/essentialsx.jar -O /minecraft/plugins/EssentialsX.jar \
-#  && wget https://example.com/plugins/worldedit.jar -O /minecraft/plugins/WorldEdit.jar \
-#  && wget https://example.com/plugins/placeholderapi.jar -O /minecraft/plugins/PlaceholderAPI.jar
-
 # TODO: Get the env var sent by orchestrator for the attached port and edit the server.properties file
 
 # Start Velocity proxy with custom memory settings

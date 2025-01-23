@@ -6,7 +6,6 @@ import java.util.concurrent.Executors;
 
 import fr.thegreensuits.api.config.RedisConfig;
 import fr.thegreensuits.api.player.PlayerManager;
-import fr.thegreensuits.api.proxy.Proxy;
 import lombok.Getter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -50,8 +49,6 @@ public abstract class TheGreenSuits implements Closeable {
   }
 
   public abstract PlayerManager getPlayerManager();
-
-  public abstract Proxy proxy();
 
   private void setupRedis(RedisConfig redisConfig) {
     if (redisConfig.isEnabled()) {
