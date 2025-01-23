@@ -14,9 +14,9 @@ build_and_publish() {
     local template=$1
     local image_name=$2
 
-    completeDir="${TEMPLATES_DIR}/${template}"
-
     IFS=':' read -r template_dir image_tag <<<"$template"
+
+    completeDir="${TEMPLATES_DIR}/${template}"
 
     docker build \
         -t "ghcr.io/${GITHUB_OWNER}/${GITHUB_REPO}/${image_tag}:latest" \
