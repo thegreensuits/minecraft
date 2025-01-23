@@ -4,7 +4,7 @@ FROM openjdk:21-slim
 ENV MINECRAFT_VERSION=1.21.4
 ENV PAPER_BUILD_VERSION=121
 
-ENV MEMORY_MAX=8G
+ENV MEMORY_MAX=6G
 
 ENV PORT=25001
 
@@ -14,13 +14,20 @@ RUN mkdir -p /minecraft/plugins /minecraft/config
 # https://api.papermc.io/v2/projects/paper/versions/1.21.4/builds/121/downloads/paper-1.21.4-121.jar
 # https://papermc.io/api/v2/projects/paper/versions/${MINECRAFT_VERSION}/builds/${PAPER_BUILD_VERSION}/downloads/paper-${MINECRAFT_VERSION}-${PAPER_BUILD_VERSION}.jar
 # Download PaperMC
-RUN apt-get update && apt-get install -y wget \
+RUN apt-get update && apt-get install -y wget git \
   && wget https://api.papermc.io/v2/projects/paper/versions/1.21.4/builds/121/downloads/paper-1.21.4-121.jar -O /minecraft/server.jar \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Compile and copy plugins
+RUN git clone https://github.com/thegreensuits/minecraft.git /tmp/minecraft \
+  && cd /tmp/minecraft \
+  && ./gradlew shadowJar \
+  && cp core/build/libs/core*.jar /minecraft/plugins/
+
+RUN echo "eula=true" > /minecraft/eula.txt
+
 # Copy configuration files
 COPY bukkit.yml /minecraft/bukkit.yml
-COPY eula.txt /minecraft/eula.txt
 COPY paper-global.yml /minecraft/config/paper-global.yml
 COPY paper-world-defaults.yml /minecraft/config/paper-world-defaults.yml
 COPY server.properties /minecraft/server.properties
