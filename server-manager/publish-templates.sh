@@ -3,7 +3,7 @@
 GITHUB_OWNER="thegreensuits"
 GITHUB_REPO="minecraft"
 
-TEMPLATES_DIR="docker/templates"
+TEMPLATES_DIR="server-manager/docker/templates"
 
 TEMPLATES=(
     "proxy:minecraft-proxy"
