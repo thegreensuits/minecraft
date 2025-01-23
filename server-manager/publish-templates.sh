@@ -6,7 +6,7 @@ GITHUB_REPO="minecraft"
 TEMPLATES_DIR="docker/templates"
 
 TEMPLATES=(
-    "proxy:velocity-proxy"
+    "proxy:minecraft-proxy"
     "hub:minecraft-hub"
 )
 
@@ -14,12 +14,14 @@ build_and_publish() {
     local template=$1
     local image_name=$2
 
+    completeDir="${TEMPLATES_DIR}/${template}"
+
     IFS=':' read -r template_dir image_tag <<<"$template"
 
     docker build \
         -t "ghcr.io/${GITHUB_OWNER}/${GITHUB_REPO}/${image_tag}:latest" \
-        -f "${TEMPLATES_DIR}/${template_dir}/Dockerfile" \
-        "${template_dir}"
+        -f "${completeDir}/Dockerfile" \
+        "${completeDir}"
 
     docker push "ghcr.io/${GITHUB_OWNER}/${GITHUB_REPO}/${image_tag}:latest"
 }
