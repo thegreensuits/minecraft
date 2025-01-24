@@ -7,9 +7,10 @@ import logging
 from typing import Dict, Optional
 
 class MinecraftServerOrchestrator:
-    def __init__(self, 
-                 redis_host='localhost', 
-                 redis_port=6379, 
+    def __init__(self,
+                 docker_images_registry='ghcr.io/thegreensuits/minecraft',
+                 redis_host='localhost',
+                 redis_port=6379,
                  docker_socket='unix://var/run/docker.sock'):
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -34,21 +35,25 @@ class MinecraftServerOrchestrator:
         }
         self._inject_servers()
 
+        if docker_images_registry and not docker_images_registry.endswith('/'):
+            docker_images_registry += '/'
+
+        # TODO: Transform templates into classes containing the image, ports, slots, min_replicas, max_replicas, slots, env vars, etc... And manage servers d'une seule façon (sans les _manage_hub et tout)
         self.templates = {
             'proxy': {
-                'image': 'minecraft-proxy:latest',
+                'image': f'{docker_images_registry}minecraft-proxy:latest',
                 'ports': (25565, 25565)
             },
             'hub': {
-                'image': 'minecraft-hub:latest',
+                'image': f'{docker_images_registry}minecraft-hub:latest',
                 'ports': (25001, 25001)
             },
             'survival': {
-                'image': 'minecraft-survival:latest',
+                'image': f'{docker_images_registry}minecraft-survival:latest',
                 'ports': (25002, 25002)
             },
             'viewing_party': {
-                'image': 'minecraft-viewing-party:latest',
+                'image': f'{docker_images_registry}minecraft-viewing-party:latest',
                 'ports': (25003, 25003)
             }
             #'minigames': {
@@ -182,10 +187,12 @@ class MinecraftServerOrchestrator:
             return
 
         try:
-            template = self.templates[server_type]
-            port = self._choose_available_port(template['ports'][0], template['ports'][1])
-
             if server_type == 'minigame' and game_type:
+                self.docker_client.api.pull(self.templates['minigames'][game_type]['image'])
+
+                template = self.templates['minigames'][game_type]
+                port = self._choose_available_port(template['ports'][0], template['ports'][1])
+
                 container = self.docker_client.containers.run(
                     self.templates['minigames'][game_type],
                     ports={f'{template["ports"][0]}/tcp': template["ports"][1]},
@@ -201,6 +208,11 @@ class MinecraftServerOrchestrator:
                 self.servers['minigames'][game_type].append(container.id)
             
             elif server_type:
+                self.docker_client.api.pull(self.templates[server_type]['image'])
+
+                template = self.templates[server_type]
+                port = self._choose_available_port(template['ports'][0], template['ports'][1])
+
                 container = self.docker_client.containers.run(
                     template['image'],
                     ports={f'{template["ports"][0]}/tcp': template["ports"][1]},
