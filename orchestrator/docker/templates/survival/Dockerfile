@@ -6,7 +6,7 @@ ENV PAPER_BUILD_VERSION=121
 
 ENV MEMORY_MAX=8G
 
-ENV PORT=25101-25150
+ENV PORT=25051-25100
 
 # Create directories
 RUN mkdir -p /minecraft/plugins /minecraft/config

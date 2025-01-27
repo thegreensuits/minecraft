@@ -159,8 +159,9 @@ class ServerManager:
         ports={f"{port}/tcp": port},
         network=self.network.name,
         environment={'PORT': port, 'SERVER_TYPE': server_type},
-        volumes={template.volume: {'bind': template.volume, 'mode': 'rw'}} if template.volume else None,
-        detach=True
+        volumes={template.volume: {'bind': "/data", 'mode': 'rw'}} if template.volume else None,
+        detach=True,
+        restart_policy={"Name": "unless-stopped"}
       )
 
       server = Server(server_type, current_replica, container.id, port)

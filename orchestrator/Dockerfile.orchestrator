@@ -12,7 +12,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy orchestrator script
-COPY main.py server_manager.py utils.py ./
+COPY main.py server_manager.py utils.py .env ./
 
 # Run the orchestrator
 CMD ["python", "main.py"]
