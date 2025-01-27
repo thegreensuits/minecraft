@@ -1,11 +1,11 @@
 rootProject.name = "thegreensuits"
 
-include("shared:api")
+include("plugins:api")
 
 // - Commons subprojects
-include("core")
-include("proxy")
+include("plugins:core")
+include("plugins:proxy")
 
 // - Servers subprojects
-include("servers:survival")
+include("plugins:servers:survival")
 // include("servers:hub")

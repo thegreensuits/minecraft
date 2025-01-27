@@ -23,13 +23,10 @@ public class Survival extends JavaPlugin {
     super.onEnable();
 
     TheGreenSuits.get().getPlayerManager().registerJoinHandler(new SurvivalJoinHandler(), Priority.HIGHEST);
-
-    getLogger().info("Plugin enabled");
   }
 
   @Override()
   public void onDisable() {
     super.onLoad();
-    getLogger().info("Plugin disabled");
   }
 }

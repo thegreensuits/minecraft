@@ -14,7 +14,7 @@ dependencies {
     shadow("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
 
-    implementation(project(":shared:api"))
+    implementation(project(":plugins:api"))
 }
 
 tasks.shadowJar {
@@ -35,6 +35,3 @@ val generateTemplates by tasks.registering(Copy::class) {
 sourceSets.main {
     java.srcDir(generateTemplates.map { it.outputs })
 }
-
-//idea.project?.settings?.taskTriggers?.afterSync(generateTemplates)
-//eclipse.synchronizationTasks(generateTemplates)

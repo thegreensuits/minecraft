@@ -5,9 +5,9 @@ repositories {
 dependencies {
   shadow("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
 
-  implementation(project(":shared:api"))
+  shadow(project(":plugins:api"))
 }
 
 tasks.shadowJar {
-  archiveBaseName.set("core")
+  archiveBaseName.set("survival")
 }
