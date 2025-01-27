@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y wget git \
 RUN git clone https://github.com/thegreensuits/minecraft.git /tmp/minecraft \
   && cd /tmp/minecraft \
   && ./gradlew shadowJar \
-  && cp core/build/libs/core*.jar /minecraft/plugins/
+  && cp plugins/core/build/libs/core*.jar /minecraft/plugins/
 
 RUN echo "eula=true" > /minecraft/eula.txt
 
