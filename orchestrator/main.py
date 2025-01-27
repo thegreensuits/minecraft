@@ -4,8 +4,11 @@ import redis
 import os
 import threading
 import logging
+from dotenv import load_dotenv
 from typing import List
 from server_manager import ServerManager, ServerCreateMessage, ServerDeleteMessage, ServerUpdateMessage, ServerType, ServerTemplate
+
+load_dotenv()
 
 class Orchestrator:
   def __init__(self,
@@ -34,6 +37,8 @@ class Orchestrator:
     self.docker = docker.DockerClient(base_url=docker_socket, version=docker_api_version)
     docker_network = self.get_or_create_docker_network(docker_network_main)
 
+    survival_volume = self.get_or_create_docker_volume(os.environ.get("DOCKER_VOLUME_SURVIVAL", "survival"))
+
     # - Servers management
     templates = {
       ServerType.PROXY: ServerTemplate(os.environ.get("SERVER_TEMPLATE_PROXY_IMAGE", "minecraft-proxy:latest"),
@@ -50,6 +55,15 @@ class Orchestrator:
                                       os.environ.get("SERVER_TEMPLATE_HUB_MIN_RAM", 0.5 * 1024),
                                       os.environ.get("SERVER_TEMPLATE_HUB_MAX_RAM", 4 * 1024),
                                       schedule_delay=os.environ.get("SERVER_TEMPLATE_HUB_SCHEDULE_DELAY", 10)),
+      ServerType.SURVIVAL: ServerTemplate(os.environ.get("SERVER_TEMPLATE_SURVIVAL_IMAGE", "minecraft-survival:latest"),
+                                          ServerType.SURVIVAL,
+                                          os.environ.get("SERVER_TEMPLATE_SURVIVAL_MAX_PLAYERS", 50),
+                                          os.environ.get("SERVER_TEMPLATE_SURVIVAL_START_PORT", "25101"),
+                                          os.environ.get("SERVER_TEMPLATE_SURVIVAL_END_PORT", "25150"),
+                                          os.environ.get("SERVER_TEMPLATE_SURVIVAL_MIN_RAM", 1 * 1024),
+                                          os.environ.get("SERVER_TEMPLATE_SURVIVAL_MAX_RAM", 8 * 1024),
+                                          schedule_delay=os.environ.get("SERVER_TEMPLATE_SURVIVAL_SCHEDULE_DELAY", 30),
+                                          volume=survival_volume.name),
     }
 
     self.server_manager = ServerManager(self.redis, self.docker, docker_network, docker_container_prefix, templates)
@@ -79,6 +93,12 @@ class Orchestrator:
   def stop(self):
     self.logger.info("Stopping orchestrator...")
     os._exit(0)
+
+  def get_or_create_docker_volume(self, volume_name):
+    if not any(v.name == volume_name for v in self.docker.volumes.list()):
+      return self.docker.volumes.create(volume_name)
+    else:
+      return self.docker.volumes.get(volume_name)
 
   def get_or_create_docker_network(self, network_name):
     if not any(n.name == network_name for n in self.docker.networks.list()):

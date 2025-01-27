@@ -3,11 +3,12 @@
 GITHUB_OWNER="thegreensuits"
 GITHUB_REPO="minecraft"
 
-TEMPLATES_DIR="server-manager/docker/templates"
+TEMPLATES_DIR="orchestrator/docker/templates"
 
 TEMPLATES=(
     "proxy:minecraft-proxy"
     "hub:minecraft-hub"
+    "survival:minecraft-survival"
 )
 
 build_and_publish() {

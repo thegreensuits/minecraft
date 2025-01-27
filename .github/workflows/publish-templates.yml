@@ -19,6 +19,6 @@ jobs:
 
       - name: Build and Push Docker Images
         run: |
-          chmod +x ./server-manager/publish-templates.sh
-          ./server-manager/publish-templates.sh
+          chmod +x ./orchestrator/publish-templates.sh
+          ./orchestrator/publish-templates.sh
         shell: bash

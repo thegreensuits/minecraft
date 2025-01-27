@@ -23,8 +23,9 @@ class ServerUpdateMessage(DataLayer):
 class ServerType(str, Enum):
   PROXY = "proxy"
   HUB = "hub"
-  #SURVIVAL = "survival"
-  #VIEWING_PARTY = "viewing_party"
+  SURVIVAL = "survival"
+  #VIEWING_PARTY = "viewing-party"
+  #MINIGAME_CATFIGHT = "minigame_catfight"
 
 class ServerStatus(str, Enum):
   IDLE = "idle"
@@ -44,7 +45,8 @@ class ServerTemplate:
                  max_ram: int = 1024,
                  schedule_delay: int = 60,
                  min_replicas: int = 1,
-                 max_replicas: int = 1):
+                 max_replicas: int = 1,
+                 volume: str = None):
         self.image = image
         self.type = type
         self.slots = slots
@@ -52,6 +54,7 @@ class ServerTemplate:
         self.ram = (min_ram, max_ram)
         self.schedule_delay = schedule_delay
         self.replicas = (min_replicas, max_replicas)
+        self.volume = volume
 
 class Player:
   def __init__(self, uuid: str, server_id: int):
@@ -100,7 +103,7 @@ class ServerManager:
 
       if(container_name.startswith(container_prefix)):
         server_type = container_name.split("_")[-2]
-        server_replica = container_name.split("_")[-1]
+        server_replica = container_name.split("_")[-1] # Could break for minigames (..._minigame_catfight_1)
 
         container_id = container.id
         container_port = None
@@ -156,6 +159,7 @@ class ServerManager:
         ports={f"{port}/tcp": port},
         network=self.network.name,
         environment={'PORT': port, 'SERVER_TYPE': server_type},
+        volumes={template.volume: {'bind': template.volume, 'mode': 'rw'}} if template.volume else None,
         detach=True
       )
 
@@ -293,3 +297,5 @@ class ServerManager:
 
   def _save_server(self, server: Server):
     self.redis.set(f"server:{server.id}", server.to_json())
+
+    #TODO: - Send RCON command to update server infos on proxy

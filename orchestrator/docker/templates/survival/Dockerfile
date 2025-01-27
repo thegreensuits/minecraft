@@ -6,7 +6,7 @@ ENV PAPER_BUILD_VERSION=121
 
 ENV MEMORY_MAX=8G
 
-ENV PORT=25002
+ENV PORT=25101-25150
 
 # Create directories
 RUN mkdir -p /minecraft/plugins /minecraft/config
@@ -20,15 +20,13 @@ RUN apt-get update && apt-get install -y wget git \
 RUN git clone https://github.com/thegreensuits/minecraft.git /tmp/minecraft \
   && cd /tmp/minecraft \
   && ./gradlew shadowJar \
-  && cp plugins/core/build/libs/core*.jar plugins/servers/survival/build/libs/survival*.jar  /minecraft/plugins/
+  && cp core/build/libs/core*.jar /minecraft/plugins/
 
 RUN echo "eula=true" > /minecraft/eula.txt
 
 # Copy configuration files
-COPY world/ /minecraft/world/
 COPY bukkit.yml /minecraft/bukkit.yml
 COPY paper-global.yml /minecraft/config/paper-global.yml
-COPY paper-world-defaults.yml /minecraft/config/paper-world-defaults.yml
 COPY server.properties /minecraft/server.properties
 COPY spigot.yml /minecraft/spigot.yml
 
