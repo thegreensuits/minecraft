@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y wget git \
 # Compile and copy plugins
 RUN git clone https://github.com/thegreensuits/minecraft.git /tmp/minecraft \
   && cd /tmp/minecraft \
-  && ./gradlew shadowJar \
+  && ./gradlew plugins:core:shadowJar && ./gradlew plugins:servers:survival:shadowJar \
   && cp plugins/core/build/libs/core*.jar plugins/servers/survival/build/libs/survival*.jar /minecraft/plugins/
 
 RUN echo "eula=true" > /minecraft/eula.txt

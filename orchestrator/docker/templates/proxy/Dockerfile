@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y wget git \
 # Compile and copy plugins
 RUN git clone https://github.com/thegreensuits/minecraft.git /tmp/minecraft \
   && cd /tmp/minecraft \
-  && ./gradlew shadowJar \
+  && ./gradlew plugins:proxy:shadowJar \
   && cp plugins/proxy/build/libs/proxy*.jar /proxy/plugins/
 
 # Copy configuration files
