@@ -23,7 +23,7 @@ public class Core extends SpigotPlugin {
     super();
 
     // - Initialize TheGreenSuits
-    RedisConfig redisConfig = new RedisConfig(true, "localhost", 6379, 0, "password");
+    RedisConfig redisConfig = new RedisConfig(true, "localhost", 6379);
 
     this.thegreensuits = new TheGreenSuitsImpl(redisConfig);
 

@@ -36,7 +36,7 @@ public class Proxy {
         this.logger = logger;
 
         // - Initialize TheGreenSuits
-        RedisConfig redisConfig = new RedisConfig(true, "localhost", 6379, 0, "");
+        RedisConfig redisConfig = new RedisConfig(true, "orchestrator-redis-1", 6379);
         this.thegreensuits = new TheGreenSuitsImpl(redisConfig);
     }
 

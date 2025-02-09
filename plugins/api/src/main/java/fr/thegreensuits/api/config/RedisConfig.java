@@ -10,6 +10,14 @@ public class RedisConfig {
   @Getter()
   private boolean enabled;
 
+  public RedisConfig(boolean enabled, String host, int port) {
+    this(enabled, host, port, 0);
+  }
+
+  public RedisConfig(boolean enabled, String host, int port, int database) {
+    this(enabled, host, port, database, "");
+  }
+
   public RedisConfig(boolean enabled, String host, int port, int database, String password) {
     this.enabled = enabled;
     this.host = host;
