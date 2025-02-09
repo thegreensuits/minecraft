@@ -10,13 +10,10 @@ import com.velocitypowered.api.proxy.server.ServerInfo;
 
 import fr.thegreensuits.api.TheGreenSuits;
 import fr.thegreensuits.api.config.RedisConfig;
-import fr.thegreensuits.api.server.Server;
 import fr.thegreensuits.proxy.listener.server.InitialServerListener;
 import fr.thegreensuits.proxy.redis.pubsub.Channels;
 import fr.thegreensuits.proxy.redis.pubsub.listener.ServerSavedListener;
 import redis.clients.jedis.Jedis;
-
-import java.util.Map;
 
 import javax.inject.Inject;
 

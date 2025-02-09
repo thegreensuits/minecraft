@@ -27,10 +27,10 @@ public abstract class TheGreenSuits implements Closeable {
     }
     _INSTANCE = this;
 
+    this.setupRedis(redisConfig);
+
     this.executorService = Executors.newCachedThreadPool();
     this.serverManager = new ServerManager(this);
-
-    this.setupRedis(redisConfig);
   }
 
   public static TheGreenSuits get() {
