@@ -56,9 +56,6 @@ public class Proxy {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        Jedis jedis = TheGreenSuits.get().getJedisPool().getResource();
-
-        System.out.println("Proxy initialized");
         System.out.println(this.thegreensuits.getServerManager().getServers().keySet());
 
         // - Register current servers on proxy
@@ -66,11 +63,15 @@ public class Proxy {
             ServerInfo serverInfo = new ServerInfo(server.getId(), server.buildInetSocketAddress());
             this.proxy.registerServer(serverInfo);
         });
+
+        this.logger.info("Proxy initialized");
     }
 
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
         this.thegreensuits.close();
+
+        this.logger.info("Proxy shutdown");
     }
 
     private class TheGreenSuitsImpl extends TheGreenSuits {
