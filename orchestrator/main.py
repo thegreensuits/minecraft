@@ -29,9 +29,9 @@ class Orchestrator:
                                     db=redis_db,
                                     password=redis_password)
     self.redis_channels = {
-      "server_create": f"{redis_channel_prefix}:servers:create",
-      "server_delete": f"{redis_channel_prefix}:servers:delete",
-      "server_update": f"{redis_channel_prefix}:servers:update"
+      "servers_create": f"{redis_channel_prefix}:servers:create",
+      "servers_saved": f"{redis_channel_prefix}:servers:saved",
+      "servers_delete": f"{redis_channel_prefix}:servers:delete",
     }
     
     self.docker = docker.DockerClient(base_url=docker_socket, version=docker_api_version)
@@ -62,11 +62,12 @@ class Orchestrator:
                                           os.environ.get("SERVER_TEMPLATE_SURVIVAL_END_PORT", "25100"),
                                           os.environ.get("SERVER_TEMPLATE_SURVIVAL_MIN_RAM", 1 * 1024),
                                           os.environ.get("SERVER_TEMPLATE_SURVIVAL_MAX_RAM", 8 * 1024),
+                                          min_replicas=0,
                                           schedule_delay=os.environ.get("SERVER_TEMPLATE_SURVIVAL_SCHEDULE_DELAY", 30),
                                           volume=survival_volume.name),
     }
 
-    self.server_manager = ServerManager(self.redis, self.docker, docker_network, docker_container_prefix, templates)
+    self.server_manager = ServerManager(self.redis, self.docker, docker_network, docker_container_prefix, templates, logger=self.logger, redis_channels=self.redis_channels)
 
   def start(self):
     self.logger.info("Starting orchestrator...")
@@ -116,18 +117,21 @@ class Orchestrator:
             self.logger.error("Received empty message from Redis")
             continue
 
-        if channel == self.refis_channels['server_create']:
-          self.server_manager.createServer(ServerCreateMessage.from_json(message['data']))
-
-        elif channel == self.refis_channels['server_delete']:
+        elif channel == self.refis_channels['servers_delete']:
           self.server_manager.deleteServer(ServerDeleteMessage.from_json(message['data']))
-
-        elif channel == self.refis_channels['server_update']:
-          self.server_manager.updateServer(ServerUpdateMessage.from_json(message['data']))
 
 def main():
   orchestrator = Orchestrator()
-  orchestrator.start()
+  
+  try:
+    if orchestrator.start():
+      print("Orchestrator started")
+
+  except Exception as e:
+        print(f"Error: {e}")
+        
+  finally:
+    orchestrator.stop()
 
 if __name__ == '__main__':
   main()

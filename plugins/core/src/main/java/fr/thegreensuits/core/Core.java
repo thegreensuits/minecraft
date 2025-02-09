@@ -2,9 +2,10 @@ package fr.thegreensuits.core;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
 
+import fr.thegreensuits.api.TheGreenSuits;
 import fr.thegreensuits.api.config.RedisConfig;
+import fr.thegreensuits.api.spigot.SpigotPlugin;
 import fr.thegreensuits.core.listener.chat.AsyncChatListener;
 import fr.thegreensuits.core.listener.player.AsyncPlayerPreLoginListener;
 import fr.thegreensuits.core.listener.player.PlayerJoinListener;
@@ -13,13 +14,14 @@ import fr.thegreensuits.core.listener.player.PlayerLoginListener;
 import fr.thegreensuits.core.listener.player.PlayerQuitListener;
 import fr.thegreensuits.core.player.event.PlayerManagerImpl;
 
-public class Core extends JavaPlugin {
-  private final TheGreenSuitsImpl thegreensuits;
+public class Core extends SpigotPlugin {
+  private final TheGreenSuits thegreensuits;
 
   public Core() {
     super();
 
-    RedisConfig redisConfig = new RedisConfig(isEnabled(), getName(), 0, 0, getName());
+    // - Initialize TheGreenSuits
+    RedisConfig redisConfig = new RedisConfig(true, "localhost", 6379, 0, "password");
 
     this.thegreensuits = new TheGreenSuitsImpl(redisConfig);
   }
@@ -40,7 +42,7 @@ public class Core extends JavaPlugin {
   }
 
   private void registerEvents(PluginManager pluginManager) {
-    PlayerManagerImpl playerManager = this.thegreensuits.playerManager;
+    PlayerManagerImpl playerManager = this.getPlayerManager();
 
     // - Register Player events listeners
     pluginManager.registerEvents(new AsyncPlayerPreLoginListener(playerManager), this);
@@ -55,8 +57,20 @@ public class Core extends JavaPlugin {
 
   @Override()
   public void onDisable() {
-    thegreensuits.close();
+    this.thegreensuits.close();
 
     getLogger().info("Core disabled");
+  }
+
+  @Override
+  public PlayerManagerImpl getPlayerManager() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getPlayerManager'");
+  }
+
+  private class TheGreenSuitsImpl extends TheGreenSuits {
+    public TheGreenSuitsImpl(RedisConfig redisConfig) {
+      super(redisConfig);
+    }
   }
 }

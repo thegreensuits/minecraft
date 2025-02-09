@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import fr.thegreensuits.api.config.RedisConfig;
-import fr.thegreensuits.api.player.PlayerManager;
+import fr.thegreensuits.api.server.manager.ServerManager;
 import lombok.Getter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -18,6 +18,8 @@ public abstract class TheGreenSuits implements Closeable {
   private JedisPool jedisPool;
   @Getter()
   private ExecutorService executorService;
+  @Getter()
+  private ServerManager serverManager;
 
   public TheGreenSuits(RedisConfig redisConfig) {
     if (_INSTANCE != null) {
@@ -26,6 +28,7 @@ public abstract class TheGreenSuits implements Closeable {
     _INSTANCE = this;
 
     this.executorService = Executors.newCachedThreadPool();
+    this.serverManager = new ServerManager(this);
 
     this.setupRedis(redisConfig);
   }
@@ -47,8 +50,6 @@ public abstract class TheGreenSuits implements Closeable {
     // - Interrupt network info api
     // TODO
   }
-
-  public abstract PlayerManager getPlayerManager();
 
   private void setupRedis(RedisConfig redisConfig) {
     if (redisConfig.isEnabled()) {

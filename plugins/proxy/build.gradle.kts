@@ -15,6 +15,12 @@ dependencies {
     annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
 
     implementation(project(":plugins:api"))
+
+    compileOnly("org.projectlombok:lombok:1.18.36")
+    annotationProcessor("org.projectlombok:lombok:1.18.36")
+    
+    testCompileOnly("org.projectlombok:lombok:1.18.36")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
 }
 
 tasks.shadowJar {

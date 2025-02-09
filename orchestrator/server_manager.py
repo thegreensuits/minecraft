@@ -4,8 +4,10 @@ import time
 import logging
 from enum import Enum
 from utils import DataLayer
-from docker import DockerClient, types
+from docker import DockerClient
+from dataclasses import dataclass
 
+@dataclass
 class ServerCreateMessage(DataLayer):
   def __init__(self, server_type: str, replicas: int = 1):
     self.server_type = server_type
@@ -62,8 +64,9 @@ class Player:
     self.server_id = server_id
 
 class Server(DataLayer):
-  def __init__(self, server_type: str, replica: int, container_id: str, port: str = None):
+  def __init__(self, server_type: ServerType, replica: int, address: str, container_id: str, port: str = None):
     self.id = f"{server_type}:{replica}"
+    self.address = address
     self.type = server_type
     self.replica = replica
     self.container_id = container_id
@@ -83,17 +86,20 @@ class ServerManager:
                docker: DockerClient,
                network,
                container_prefix: str,
-               templates: Dict[ServerType, ServerTemplate]):
-    logging.basicConfig(level=logging.INFO)
-    self.logger = logging.getLogger(__name__)
+               templates: Dict[ServerType, ServerTemplate],
+               logger: logging.Logger = None,
+               servers: Dict[ServerType, List[Server]] = None,
+               redis_channels: Dict[str, str] = None):
+    self.logger = logger or logging.getLogger(__name__)
 
     self.redis = redis
     self.docker = docker
     self.network = network
     self.container_prefix = container_prefix
     self.templates = templates
+    self.redis_channels = redis_channels
 
-    self.servers = self.get_servers(container_prefix)
+    self.servers = servers or self.get_servers(container_prefix)
 
   def get_servers(self, container_prefix: str) -> Dict[ServerType, List[Server]]:
     servers: Dict[ServerType, List[Server]] = {server_type: [] for server_type in ServerType}
@@ -113,7 +119,7 @@ class ServerManager:
 
         # - Check if the server is already in the list using container_id, if not then add it
         if not any(server.container_id == container_id for server in servers[server_type]):
-          server = Server(server_type, server_replica, container_id, container_port)
+          server = Server(server_type, server_replica, container_name, container_id, container_port)
           servers[server_type].append(server)
 
           self._save_server(server)
@@ -140,6 +146,9 @@ class ServerManager:
     if not self.servers.get(server_type):
       self.servers[server_type] = []
 
+    # - Pull image to make sure it's up to date
+    self._pull_image(template.image)
+
     for _ in range(message.replicas):
       self.logger.info(f"Creating new server for {message.server_type}")
 
@@ -164,7 +173,7 @@ class ServerManager:
         restart_policy={"Name": "unless-stopped"}
       )
 
-      server = Server(server_type, current_replica, container.id, port)
+      server = Server(server_type, current_replica, container_name, container.id, port)
       self.servers[server_type].append(server)
 
       self._save_server(server)
@@ -251,6 +260,10 @@ class ServerManager:
 
   def get_template(self, server_type: ServerType) -> ServerTemplate:
     return self.templates.get(server_type)
+  
+  def _pull_image(self, image: str):
+    self.logger.info(f"Pulling image {image}")
+    self.docker.images.pull(image)
 
   def _get_available_port(self, ports_range: tuple[str, str]) -> str:
     """
@@ -299,4 +312,5 @@ class ServerManager:
   def _save_server(self, server: Server):
     self.redis.set(f"server:{server.id}", server.to_json())
 
-    #TODO: - Send RCON command to update server infos on proxy
+    # - Publish server saved event
+    self.redis.publish(self.redis_channels["servers_saved"], server.to_json())
