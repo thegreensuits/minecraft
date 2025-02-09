@@ -147,7 +147,7 @@ class ServerManager:
       self.servers[server_type] = []
 
     # - Pull image to make sure it's up to date
-    self._pull_image(template.image)
+    #self._pull_image(template.image)
 
     for _ in range(message.replicas):
       self.logger.info(f"Creating new server for {message.server_type}")

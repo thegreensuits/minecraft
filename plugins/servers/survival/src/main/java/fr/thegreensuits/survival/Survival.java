@@ -3,7 +3,7 @@ package fr.thegreensuits.survival;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import fr.thegreensuits.survival.handler.SurvivalJoinHandler;
-import fr.thegreensuits.api.TheGreenSuits;
+import fr.thegreensuits.api.spigot.SpigotPlugin;
 import fr.thegreensuits.api.utils.commons.Priority;
 
 public class Survival extends JavaPlugin {
@@ -22,7 +22,7 @@ public class Survival extends JavaPlugin {
   public void onEnable() {
     super.onEnable();
 
-    TheGreenSuits.get().getPlayerManager().registerJoinHandler(new SurvivalJoinHandler(), Priority.HIGHEST);
+    SpigotPlugin.get().getPlayerManager().registerJoinHandler(new SurvivalJoinHandler(), Priority.HIGHEST);
   }
 
   @Override()

@@ -117,7 +117,7 @@ class Orchestrator:
             self.logger.error("Received empty message from Redis")
             continue
 
-        elif channel == self.refis_channels['servers_delete']:
+        elif channel == self.redis_channels['servers_delete']:
           self.server_manager.deleteServer(ServerDeleteMessage.from_json(message['data']))
 
 def main():

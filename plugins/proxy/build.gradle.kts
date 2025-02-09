@@ -4,6 +4,7 @@ plugins {
 
 group = "fr.thegreensuits"
 version = "1.0-SNAPSHOT"
+description = "TheGreenSuits Velocity proxy"
 
 repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -13,6 +14,8 @@ repositories {
 dependencies {
     shadow("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
+
+    implementation("redis.clients:jedis:5.2.0")
 
     implementation(project(":plugins:api"))
 
@@ -30,7 +33,7 @@ tasks.shadowJar {
 val templateSource = file("src/main/templates")
 val templateDest = layout.buildDirectory.dir("generated/sources/templates")
 val generateTemplates by tasks.registering(Copy::class) {
-    val props = mapOf("version" to project.version)
+    val props = mapOf("version" to project.version, "group" to project.group, "description" to project.description)
     inputs.properties(props)
 
     from(templateSource)

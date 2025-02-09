@@ -17,6 +17,8 @@ import fr.thegreensuits.core.player.event.PlayerManagerImpl;
 public class Core extends SpigotPlugin {
   private final TheGreenSuits thegreensuits;
 
+  private final PlayerManagerImpl playerManager;
+
   public Core() {
     super();
 
@@ -24,6 +26,8 @@ public class Core extends SpigotPlugin {
     RedisConfig redisConfig = new RedisConfig(true, "localhost", 6379, 0, "password");
 
     this.thegreensuits = new TheGreenSuitsImpl(redisConfig);
+
+    this.playerManager = new PlayerManagerImpl();
   }
 
   @Override()
@@ -64,8 +68,7 @@ public class Core extends SpigotPlugin {
 
   @Override
   public PlayerManagerImpl getPlayerManager() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getPlayerManager'");
+    return this.playerManager;
   }
 
   private class TheGreenSuitsImpl extends TheGreenSuits {
