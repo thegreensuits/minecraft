@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
 import com.velocitypowered.api.proxy.ProxyServer;
-import com.velocitypowered.api.proxy.server.RegisteredServer;
 
 import fr.thegreensuits.api.TheGreenSuits;
 import fr.thegreensuits.api.server.status.ServerStatus;
@@ -18,9 +17,9 @@ public class InitialServerListener {
     private final TheGreenSuits thegreensuits;
 
     @Inject
-    public InitialServerListener(ProxyServer proxy, TheGreenSuits thegreensuits) {
+    public InitialServerListener(ProxyServer proxy) {
         this.proxy = proxy;
-        this.thegreensuits = thegreensuits;
+        this.thegreensuits = TheGreenSuits.get();
     }
 
     @Subscribe

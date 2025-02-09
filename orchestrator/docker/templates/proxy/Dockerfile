@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y wget git \
 RUN git clone https://github.com/thegreensuits/minecraft.git /tmp/minecraft \
   && cd /tmp/minecraft \
   && ./gradlew shadowJar \
-  && cp plugins/proxy/build/libs/core*.jar /proxy/plugins/
+  && cp plugins/proxy/build/libs/proxy*.jar /proxy/plugins/
 
 # Copy configuration files
 COPY velocity.toml /proxy/velocity.toml
