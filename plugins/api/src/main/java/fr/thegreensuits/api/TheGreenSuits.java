@@ -57,9 +57,7 @@ public abstract class TheGreenSuits implements Closeable {
       Thread.currentThread().setContextClassLoader(Jedis.class.getClassLoader());
 
       JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
-      this.jedisPool = new JedisPool(jedisPoolConfig, redisConfig.getHost(), redisConfig.getPort(), 3000,
-          redisConfig.getPassword(),
-          redisConfig.getDatabase());
+      this.jedisPool = new JedisPool(jedisPoolConfig, redisConfig.getHost(), redisConfig.getPort(), 3000);
 
       Thread.currentThread().setContextClassLoader(previous);
 

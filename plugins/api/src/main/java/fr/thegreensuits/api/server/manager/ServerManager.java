@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import fr.thegreensuits.api.TheGreenSuits;
 import fr.thegreensuits.api.server.Server;
 import fr.thegreensuits.api.server.status.ServerStatus;
@@ -20,7 +18,6 @@ public class ServerManager {
     @Getter
     private final Map<String, Server> servers;
 
-    @Inject
     public ServerManager(TheGreenSuits thegreensuits) {
         // - Initialize TheGreenSuits
         this.thegreensuits = thegreensuits;
@@ -48,7 +45,6 @@ public class ServerManager {
                 String json = jedis.get(key);
                 if (json != null) {
                     Server server = Server.deserialize(json, Server.class);
-
                     this.addServer(server);
                 }
             }

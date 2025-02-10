@@ -1,4 +1,4 @@
-FROM openjdk:21-slim
+FROM gradle:jdk22
 
 # Environment variables
 ENV VELOCITY_VERSION=3.4.0-SNAPSHOT

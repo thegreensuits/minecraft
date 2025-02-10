@@ -13,13 +13,12 @@ import fr.thegreensuits.api.config.RedisConfig;
 import fr.thegreensuits.proxy.listener.server.InitialServerListener;
 import fr.thegreensuits.proxy.redis.pubsub.Channels;
 import fr.thegreensuits.proxy.redis.pubsub.listener.ServerSavedListener;
+import jakarta.inject.Inject;
 import redis.clients.jedis.Jedis;
-
-import javax.inject.Inject;
 
 import org.slf4j.Logger;
 
-@Plugin(id = "proxy", name = "proxy", version = BuildConstants.VERSION, description = BuildConstants.DESCRIPTION)
+@Plugin(id = "proxy", name = "Proxy", version = BuildConstants.VERSION, description = BuildConstants.DESCRIPTION)
 public class Proxy {
     private final TheGreenSuits thegreensuits;
 
@@ -29,23 +28,21 @@ public class Proxy {
     private final Logger logger;
 
     @Inject
-    public Proxy(ProxyServer proxy, EventManager eventManager, Logger logger, ServerSavedListener serverSavedListener) {
+    public Proxy(ProxyServer proxy, Logger logger) {
         this.proxy = proxy;
-        this.eventManager = eventManager;
-
         this.logger = logger;
+        this.eventManager = proxy.getEventManager();
 
         // - Initialize TheGreenSuits
-        RedisConfig redisConfig = new RedisConfig(true, "orchestrator-redis-1", 6379);
+        RedisConfig redisConfig = new RedisConfig(true, "127.0.0.1", 6379);
         this.thegreensuits = new TheGreenSuitsImpl(redisConfig);
     }
 
-    @Inject
-    public void registerListeners(InitialServerListener initialServerListener) {
+    public void registerListeners() {
         Jedis jedis = TheGreenSuits.get().getJedisPool().getResource();
 
         // - Register Velocity events listeners
-        eventManager.register(this, initialServerListener);
+        this.eventManager.register(this, new InitialServerListener(this.proxy));
 
         // - Register Jedis channel events listeners
         jedis.subscribe(new ServerSavedListener(this.proxy), Channels.SERVERS_SAVED.getChannel());
@@ -53,7 +50,7 @@ public class Proxy {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        System.out.println(this.thegreensuits.getServerManager().getServers().keySet());
+        System.out.println("@proxy init " + this.thegreensuits.getServerManager().getServers().keySet());
 
         // - Register current servers on proxy
         this.thegreensuits.getServerManager().getServers().forEach((id, server) -> {

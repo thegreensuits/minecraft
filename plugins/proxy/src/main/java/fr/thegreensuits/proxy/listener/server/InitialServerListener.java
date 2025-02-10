@@ -2,8 +2,6 @@ package fr.thegreensuits.proxy.listener.server;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -16,7 +14,6 @@ public class InitialServerListener {
     private final ProxyServer proxy;
     private final TheGreenSuits thegreensuits;
 
-    @Inject
     public InitialServerListener(ProxyServer proxy) {
         this.proxy = proxy;
         this.thegreensuits = TheGreenSuits.get();
@@ -24,7 +21,7 @@ public class InitialServerListener {
 
     @Subscribe
     public void onPlayerChooseServer(PlayerChooseInitialServerEvent event) {
-        System.out.println(this.thegreensuits.getServerManager().getServers().keySet());
+        System.out.println("@player choose " + this.thegreensuits.getServerManager().getServers().keySet());
 
         this.thegreensuits.getServerManager().getServers().values().stream()
                 .filter(server -> server.getType().equals(ServerType.HUB)

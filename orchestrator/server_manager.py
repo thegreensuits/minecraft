@@ -112,7 +112,9 @@ class ServerManager:
         server_replica = container_name.split("_")[-1] # Could break for minigames (..._minigame_catfight_1)
 
         container_id = container.id
-        container_port = None
+
+        # - Get the port of the container, it can be a range so we need to get the first one
+        container_port = next(iter(container.ports.keys())).split("/")[0]
 
         if not servers.get(server_type):
           servers[server_type] = []

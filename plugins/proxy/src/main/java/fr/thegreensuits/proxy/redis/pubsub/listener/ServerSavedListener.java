@@ -1,7 +1,5 @@
 package fr.thegreensuits.proxy.redis.pubsub.listener;
 
-import javax.inject.Inject;
-
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 
@@ -13,7 +11,6 @@ import redis.clients.jedis.JedisPubSub;
 public class ServerSavedListener extends JedisPubSub {
     private final ProxyServer proxy;
 
-    @Inject
     public ServerSavedListener(ProxyServer proxy) {
         this.proxy = proxy;
     }

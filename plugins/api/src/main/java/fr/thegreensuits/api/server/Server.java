@@ -28,6 +28,10 @@ public class Server extends Serializable {
     }
 
     public InetSocketAddress buildInetSocketAddress() {
+        if (this.address == null || this.port == null) {
+            return null;
+        }
+
         return new InetSocketAddress(this.address, Integer.parseInt(this.port));
     }
 }
