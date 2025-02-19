@@ -1,5 +1,7 @@
 package fr.thegreensuits.proxy.redis.pubsub.listener;
 
+import org.slf4j.Logger;
+
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 
@@ -10,13 +12,17 @@ import redis.clients.jedis.JedisPubSub;
 
 public class ServerSavedListener extends JedisPubSub {
     private final ProxyServer proxy;
+    private final Logger logger;
 
-    public ServerSavedListener(ProxyServer proxy) {
+    public ServerSavedListener(ProxyServer proxy, Logger logger) {
         this.proxy = proxy;
+        this.logger = logger;
     }
 
     @Override
     public void onMessage(String channel, String message) {
+        this.logger.info("Received message: {}", message);
+
         if (channel == Channels.SERVERS_SAVED.getChannel()) {
             Server server = Server.deserialize(message, Server.class);
 
@@ -24,6 +30,8 @@ public class ServerSavedListener extends JedisPubSub {
                 ServerInfo serverInfo = new ServerInfo(server.getId(), server.buildInetSocketAddress());
                 TheGreenSuits.get().getServerManager().addServer(server);
                 this.proxy.registerServer(serverInfo);
+
+                this.logger.info("Server {} registered", server.getId());
             } else {
                 // TODO: Implement this
             }

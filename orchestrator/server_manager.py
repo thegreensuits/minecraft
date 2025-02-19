@@ -104,14 +104,22 @@ class ServerManager:
   def get_servers(self, container_prefix: str) -> Dict[ServerType, List[Server]]:
     servers: Dict[ServerType, List[Server]] = {server_type: [] for server_type in ServerType}
 
-    servers_network = self.docker.networks.get(self.networks[0])
+    servers_network = self.networks[0]
 
     for container in self.docker.containers.list(filters={"network": servers_network.name}):
       container_name = container.name
 
       if(container_name.startswith(container_prefix)):
-        server_type = container_name.split("_")[-2]
-        server_replica = container_name.split("_")[-1] # Could break for minigames (..._minigame_catfight_1)
+        # - Get server infos under name format: {container_prefix}-{server_type}-{server_replica}
+        server_infos = container_name.replace(container_prefix + "-", "")
+
+        # - Get server types and replica, format is {server_type}-{server_replica} but could break for minigames (...-minigame-catfight-1)
+        server_type = server_infos.split("-")[-2]
+        
+        if(server_type == "redis"):
+          continue
+
+        server_replica = int(server_infos.split("-")[-1])
 
         container_id = container.id
 
@@ -163,13 +171,13 @@ class ServerManager:
         self.logger.error(f"No available ports for {server_type}")
         return
 
-      container_name = f"{self.container_prefix}_{server_type}_{current_replica}"
+      container_name = f"{self.container_prefix}-{server_type}-{current_replica}"
 
       container = self.docker.containers.run(
         template.image,
         name=container_name,
         ports={f"{port}/tcp": port},
-        network=self.networks[0],
+        network=self.networks[0].name,
         environment={'PORT': port, 'SERVER_TYPE': server_type},
         volumes={template.volume: {'bind': "/data", 'mode': 'rw'}} if template.volume else None,
         detach=True,
@@ -177,8 +185,8 @@ class ServerManager:
       )
 
       # - Connect all networks to the container
-      for network in self.networks.values():
-        container.connect(network)
+      #for network in self.networks:
+      #  container.connect(network)
 
       server = Server(server_type, current_replica, container_name, container.id, port)
       self.servers[server_type].append(server)
