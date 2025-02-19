@@ -16,6 +16,7 @@ dependencies {
     annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
 
     implementation("redis.clients:jedis:5.2.0")
+    implementation("org.spongepowered:configurate-yaml:4.1.2")
 
     implementation(project(":plugins:api"))
 

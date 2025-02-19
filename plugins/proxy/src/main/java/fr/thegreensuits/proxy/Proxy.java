@@ -5,6 +5,7 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.event.EventManager;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 
@@ -12,12 +13,15 @@ import fr.thegreensuits.api.TheGreenSuits;
 import fr.thegreensuits.api.redis.pubsub.Channels;
 import fr.thegreensuits.api.server.status.ServerStatus;
 import fr.thegreensuits.api.utils.StaticInstance;
+import fr.thegreensuits.proxy.config.ConfigManager;
 import fr.thegreensuits.proxy.listener.server.InitialServerListener;
 import fr.thegreensuits.proxy.redis.pubsub.listener.ServerCreatedListener;
 import fr.thegreensuits.proxy.redis.pubsub.listener.ServerUpdatedListener;
 import jakarta.inject.Inject;
 import lombok.Getter;
 import redis.clients.jedis.Jedis;
+
+import java.nio.file.Path;
 
 import org.slf4j.Logger;
 
@@ -27,21 +31,31 @@ public class Proxy extends StaticInstance<Proxy> {
 
     @Getter
     private final ProxyServer proxy;
+    @Getter
+    private final ConfigManager configManager;
     private final EventManager eventManager;
 
     @Getter
     private final Logger logger;
 
     @Inject
-    public Proxy(ProxyServer proxy, Logger logger) {
+    public Proxy(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory) {
         super();
+
+        this.configManager = new ConfigManager(dataDirectory);
+        this.configManager.loadConfig();
 
         this.proxy = proxy;
         this.logger = logger;
         this.eventManager = proxy.getEventManager();
 
         // - Initialize TheGreenSuits
-        this.thegreensuits = new TheGreenSuitsImpl();
+        String serverId = this.configManager.getServerId();
+        if (serverId.equals("-1")) {
+            throw new IllegalStateException("server-id is not defined in the configuration file");
+        }
+
+        this.thegreensuits = new TheGreenSuitsImpl(serverId);
     }
 
     @Override
@@ -87,6 +101,10 @@ public class Proxy extends StaticInstance<Proxy> {
     }
 
     private class TheGreenSuitsImpl extends TheGreenSuits {
+        public TheGreenSuitsImpl(String serverId) {
+            super(serverId);
+        }
+
         @Override
         public Logger getLogger() {
             return Proxy.this.getLogger();
