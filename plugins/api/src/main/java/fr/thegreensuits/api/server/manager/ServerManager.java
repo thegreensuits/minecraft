@@ -35,6 +35,8 @@ public class ServerManager {
     }
 
     private void init() {
+        this.thegreensuits.getLogger().info("Loading servers from Redis");
+
         String cursor = "0";
         ScanParams params = new ScanParams().match("server:*").count(100);
 
@@ -48,9 +50,16 @@ public class ServerManager {
                 if (json != null) {
                     Server server = Server.deserialize(json, Server.class);
                     this.addServer(server);
+
+                    this.thegreensuits.getLogger().info("Loaded server: " + server.getId());
                 }
             }
         } while (!cursor.equals("0"));
+
+        this.thegreensuits.getLogger().info("Loaded " + this.servers.size() + " servers from Redis");
+
+        // - Register listeners
+        this.thegreensuits.getLogger().info("Registering Redis channel listeners");
 
         jedis.subscribe(new ServerCreatedListener(), Channels.SERVERS_CREATED.getChannel());
         jedis.subscribe(new ServerUpdatedListener(), Channels.SERVERS_UPDATED.getChannel());

@@ -74,7 +74,8 @@ public class Proxy extends StaticInstance<Proxy> {
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         this.logger.info("Proxy initializing...");
-        this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(), ServerStatus.STARTING);
+        // this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(),
+        // ServerStatus.STARTING);
 
         // - Register Velocity events listeners
         this.eventManager.register(this, new InitialServerListener(this.proxy));
@@ -88,7 +89,8 @@ public class Proxy extends StaticInstance<Proxy> {
         });
 
         this.logger.info("Proxy initialized");
-        this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(), ServerStatus.RUNNING);
+        // this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(),
+        // ServerStatus.RUNNING);
     }
 
     @Subscribe
@@ -97,8 +99,9 @@ public class Proxy extends StaticInstance<Proxy> {
 
         this.logger.info("Proxy shutdown");
 
-        this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(), ServerStatus.STOPPED);
-        this.thegreensuits.getServerManager().removeServer(this.thegreensuits.getServerId());
+        // this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(),
+        // ServerStatus.STOPPED);
+        // this.thegreensuits.getServerManager().removeServer(this.thegreensuits.getServerId());
     }
 
     private class TheGreenSuitsImpl extends TheGreenSuits {
@@ -113,7 +116,8 @@ public class Proxy extends StaticInstance<Proxy> {
 
         @Override
         public void close() {
-            this.getServerManager().updateServer(this.getServerId(), ServerStatus.STOPPING);
+            // this.getServerManager().updateServer(this.getServerId(),
+            // ServerStatus.STOPPING);
 
             super.close();
         }
