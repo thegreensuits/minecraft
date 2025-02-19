@@ -25,6 +25,7 @@ RUN git clone https://github.com/thegreensuits/minecraft.git /tmp/minecraft \
 RUN echo "eula=true" > /minecraft/eula.txt
 
 # Copy configuration files
+COPY config.yml /minecraft/plugins/core/config.yml
 COPY bukkit.yml /minecraft/bukkit.yml
 COPY paper-global.yml /minecraft/config/paper-global.yml
 COPY server.properties /minecraft/server.properties
