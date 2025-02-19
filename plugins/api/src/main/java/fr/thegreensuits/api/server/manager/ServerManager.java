@@ -38,7 +38,7 @@ public class ServerManager {
         this.servers = new HashMap<>();
 
         // - Load servers from redis
-        this.executorService.submit(this::init);
+        this.init();
     }
 
     private void init() {
