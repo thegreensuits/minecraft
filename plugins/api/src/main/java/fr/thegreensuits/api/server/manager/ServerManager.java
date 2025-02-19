@@ -3,6 +3,7 @@ package fr.thegreensuits.api.server.manager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import fr.thegreensuits.api.TheGreenSuits;
 import fr.thegreensuits.api.redis.pubsub.Channels;
@@ -12,6 +13,7 @@ import fr.thegreensuits.api.server.Server;
 import fr.thegreensuits.api.server.status.ServerStatus;
 import lombok.Getter;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisFactory;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
 import org.slf4j.Logger;
@@ -19,7 +21,8 @@ import org.slf4j.Logger;
 public class ServerManager {
     private final TheGreenSuits thegreensuits;
     private final Logger logger;
-    private final Jedis jedis;
+    private final JedisPool jedisPool;
+    private final ExecutorService executorService;
 
     @Getter
     private final Map<String, Server> servers;
@@ -28,7 +31,7 @@ public class ServerManager {
         // - Initialize TheGreenSuits
         this.thegreensuits = thegreensuits;
         this.logger = thegreensuits.getLogger();
-        this.jedis = thegreensuits.getJedisPool().getResource();
+        this.jedisPool = thegreensuits.getJedisPool();
 
         // - Initialize servers
         this.servers = new HashMap<>();
@@ -40,24 +43,27 @@ public class ServerManager {
     private void init() {
         this.logger.info("Loading servers from Redis");
 
-        String cursor = "0";
-        ScanParams params = new ScanParams().match("server:*").count(100);
+        try (Jedis jedis = this.jedisPool.getResource()) {
+            ScanParams scanParams = new ScanParams().match("server:*").count(1000);
+            String cursor = "0";
 
-        do {
-            ScanResult<String> scanResult = this.jedis.scan(cursor, params);
-            List<String> keys = scanResult.getResult();
-            cursor = scanResult.getCursor();
+            do {
+                ScanResult<String> scanResult = jedis.scan(cursor, scanParams);
+                cursor = scanResult.getStringCursor();
 
-            for (String key : keys) {
-                String json = this.jedis.get(key);
-                if (json != null) {
-                    Server server = Server.deserialize(json, Server.class);
-                    this.addServer(server);
+                List<String> keys = scanResult.getResult();
+                for (String key : keys) {
+                    String value = jedis.get(key);
+                    Server server = Server.deserialize(value);
+
+                    this.servers.put(server.getId(), server);
 
                     this.logger.info("Loaded server: " + server.getId());
                 }
-            }
-        } while (!cursor.equals("0"));
+            } while (!cursor.equals("0"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         this.logger.info("Loaded " + this.servers.size() + " servers from Redis");
 
@@ -91,11 +97,13 @@ public class ServerManager {
     public void updateServer(Server server) {
         this.servers.put(server.getId(), server);
 
-        try {
-            this.jedis.set("server:" + server.getId(), server.serialize());
-        } finally {
-            JedisFactory.jedisPool.returnResource(this.jedis);
-        }
+        this.executorService.submit(() -> {
+            try (Jedis jedis = this.jedisPool.getRessource()) {
+                jedis.set("server:" + server.getId(), server.serialize());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void updateServer(Server server, Boolean broadcastChanges) {
