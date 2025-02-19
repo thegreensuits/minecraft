@@ -13,6 +13,7 @@ import fr.thegreensuits.api.TheGreenSuits;
 import fr.thegreensuits.api.redis.pubsub.Channels;
 import fr.thegreensuits.api.server.status.ServerStatus;
 import fr.thegreensuits.api.utils.StaticInstance;
+import fr.thegreensuits.api.utils.helper.RedisHelper;
 import fr.thegreensuits.proxy.config.ConfigManager;
 import fr.thegreensuits.proxy.listener.server.InitialServerListener;
 import fr.thegreensuits.proxy.redis.pubsub.listener.ServerCreatedListener;
@@ -27,13 +28,17 @@ import org.slf4j.Logger;
 
 @Plugin(id = "proxy", name = "Proxy", version = BuildConstants.VERSION, description = BuildConstants.DESCRIPTION)
 public class Proxy extends StaticInstance<Proxy> {
+    // - The Green Suits
     private final TheGreenSuits thegreensuits;
+    private final RedisHelper redisHelper;
 
+    // - Velocity
     @Getter
     private final ProxyServer proxy;
+    private final EventManager eventManager;
+
     @Getter
     private final ConfigManager configManager;
-    private final EventManager eventManager;
 
     @Getter
     private final Logger logger;
@@ -45,10 +50,6 @@ public class Proxy extends StaticInstance<Proxy> {
         this.configManager = new ConfigManager(dataDirectory);
         this.configManager.loadConfig();
 
-        this.proxy = proxy;
-        this.logger = logger;
-        this.eventManager = proxy.getEventManager();
-
         // - Initialize TheGreenSuits
         String serverId = this.configManager.getServerId();
         if (serverId.equals("-1")) {
@@ -56,6 +57,11 @@ public class Proxy extends StaticInstance<Proxy> {
         }
 
         this.thegreensuits = new TheGreenSuitsImpl(serverId);
+
+        this.proxy = proxy;
+        this.logger = logger;
+        this.eventManager = proxy.getEventManager();
+        this.redisHelper = new RedisHelper(this.thegreensuits.getJedisPool());
     }
 
     @Override
@@ -64,11 +70,12 @@ public class Proxy extends StaticInstance<Proxy> {
     }
 
     public void registerListeners() {
-        Jedis jedis = TheGreenSuits.get().getJedisPool().getResource();
-
         // - Register Jedis channel events listeners
-        jedis.subscribe(new ServerCreatedListener(this.proxy, this.logger), Channels.SERVERS_CREATED.getChannel());
-        jedis.subscribe(new ServerUpdatedListener(this.proxy, this.logger), Channels.SERVERS_UPDATED.getChannel());
+        this.redisHelper.executeVoid(jedis -> {
+            jedis.subscribe(new ServerCreatedListener(this.proxy, this.logger), Channels.SERVERS_CREATED.getChannel());
+            jedis.subscribe(new ServerUpdatedListener(this.proxy, this.logger), Channels.SERVERS_UPDATED.getChannel());
+            return null;
+        });
     }
 
     @Subscribe

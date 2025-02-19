@@ -99,11 +99,9 @@ public class ServerManager {
     public void updateServer(Server server) {
         this.servers.put(server.getId(), server);
 
-        this.executorService.submit(() -> {
-            this.redisHelper.executeVoid(jedis -> {
-                jedis.set("server:" + server.getId(), server.serialize());
-                return null;
-            });
+        this.redisHelper.executeVoid(jedis -> {
+            jedis.set("server:" + server.getId(), server.serialize());
+            return null;
         });
     }
 
