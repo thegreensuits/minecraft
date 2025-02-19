@@ -11,9 +11,10 @@ import fr.thegreensuits.api.redis.pubsub.listener.ServerCreatedListener;
 import fr.thegreensuits.api.redis.pubsub.listener.ServerUpdatedListener;
 import fr.thegreensuits.api.server.Server;
 import fr.thegreensuits.api.server.status.ServerStatus;
+import fr.thegreensuits.api.utils.helper.RedisHelper;
 import lombok.Getter;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisFactory;
+import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
 import org.slf4j.Logger;
@@ -21,7 +22,7 @@ import org.slf4j.Logger;
 public class ServerManager {
     private final TheGreenSuits thegreensuits;
     private final Logger logger;
-    private final JedisPool jedisPool;
+    private final RedisHelper redisHelper;
     private final ExecutorService executorService;
 
     @Getter
@@ -31,47 +32,48 @@ public class ServerManager {
         // - Initialize TheGreenSuits
         this.thegreensuits = thegreensuits;
         this.logger = thegreensuits.getLogger();
-        this.jedisPool = thegreensuits.getJedisPool();
+        this.redisHelper = new RedisHelper(this.thegreensuits.getJedisPool());
+        this.executorService = thegreensuits.getExecutorService();
 
         // - Initialize servers
         this.servers = new HashMap<>();
 
         // - Load servers from redis
-        this.thegreensuits.getExecutorService().submit(() -> this.init());
+        this.executorService.submit(this::init);
     }
 
     private void init() {
         this.logger.info("Loading servers from Redis");
 
-        try (Jedis jedis = this.jedisPool.getResource()) {
+        this.redisHelper.executeVoid(jedis -> {
             ScanParams scanParams = new ScanParams().match("server:*").count(1000);
             String cursor = "0";
 
             do {
                 ScanResult<String> scanResult = jedis.scan(cursor, scanParams);
-                cursor = scanResult.getStringCursor();
+                cursor = scanResult.getCursor();
 
                 List<String> keys = scanResult.getResult();
                 for (String key : keys) {
                     String value = jedis.get(key);
-                    Server server = Server.deserialize(value);
+                    Server server = Server.deserialize(value, Server.class);
 
                     this.servers.put(server.getId(), server);
-
-                    this.logger.info("Loaded server: " + server.getId());
                 }
             } while (!cursor.equals("0"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            return null;
+        });
 
         this.logger.info("Loaded " + this.servers.size() + " servers from Redis");
 
         // - Register listeners
         this.logger.info("Registering Redis channel listeners");
 
-        this.jedis.subscribe(new ServerCreatedListener(), Channels.SERVERS_CREATED.getChannel());
-        this.jedis.subscribe(new ServerUpdatedListener(), Channels.SERVERS_UPDATED.getChannel());
+        this.redisHelper.executeVoid(jedis -> {
+            jedis.subscribe(new ServerCreatedListener(this), Channels.SERVERS_CREATED.getChannel());
+            jedis.subscribe(new ServerUpdatedListener(this), Channels.SERVERS_UPDATED.getChannel());
+            return null;
+        });
     }
 
     public void addServer(Server server) {
@@ -98,11 +100,10 @@ public class ServerManager {
         this.servers.put(server.getId(), server);
 
         this.executorService.submit(() -> {
-            try (Jedis jedis = this.jedisPool.getRessource()) {
+            this.redisHelper.executeVoid(jedis -> {
                 jedis.set("server:" + server.getId(), server.serialize());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                return null;
+            });
         });
     }
 
@@ -111,7 +112,10 @@ public class ServerManager {
 
         // - Broadcast server update to Redis channel
         if (broadcastChanges) {
-            this.jedis.publish(Channels.SERVERS_UPDATED.getChannel(), server.serialize());
+            this.redisHelper.executeVoid(jedis -> {
+                jedis.publish(Channels.SERVERS_UPDATED.getChannel(), server.serialize());
+                return null;
+            });
         }
     }
 

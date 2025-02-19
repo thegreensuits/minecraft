@@ -11,10 +11,10 @@ public class ServerUpdatedListener extends JedisPubSub {
     private final Logger logger = TheGreenSuits.get().getLogger();
     private final ServerManager serverManager;
 
-    public ServerUpdatedListener() {
+    public ServerUpdatedListener(ServerManager serverManager) {
         super();
 
-        this.serverManager = TheGreenSuits.get().getServerManager();
+        this.serverManager = serverManager;
     }
 
     @Override

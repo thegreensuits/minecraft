@@ -11,10 +11,10 @@ public class ServerCreatedListener extends JedisPubSub {
     private final Logger logger = TheGreenSuits.get().getLogger();
     private final ServerManager serverManager;
 
-    public ServerCreatedListener() {
+    public ServerCreatedListener(ServerManager serverManager) {
         super();
 
-        this.serverManager = TheGreenSuits.get().getServerManager();
+        this.serverManager = serverManager;
     }
 
     @Override
@@ -22,7 +22,7 @@ public class ServerCreatedListener extends JedisPubSub {
         Server server = Server.deserialize(message, Server.class);
 
         if (!this.serverManager.hasServer(server.getId())) {
-            TheGreenSuits.get().getServerManager().addServer(server);
+            this.serverManager.addServer(server);
 
             this.logger.info("Server {} added to server manager", server.getId());
             return;
