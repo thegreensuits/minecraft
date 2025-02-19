@@ -25,6 +25,7 @@ import lombok.Getter;
 import java.nio.file.Path;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Plugin(id = "proxy", name = "Proxy", version = BuildConstants.VERSION, description = BuildConstants.DESCRIPTION)
 public class Proxy extends StaticInstance<Proxy> {
@@ -139,7 +140,7 @@ public class Proxy extends StaticInstance<Proxy> {
 
         @Override
         public Logger getLogger() {
-            return Proxy.this.getLogger();
+            return LoggerFactory.getLogger(Proxy.class);
         }
 
         @Override

@@ -128,6 +128,7 @@ class ServerManager:
         if not servers.get(server_type):
           servers[server_type] = []
 
+        # TODO: Revoir ça pcq ça erase les infos que le serveur donne
         # - Check if the server is already in the list using container_id, if not then add it
         if not any(server.container_id == container_id for server in servers[server_type]):
           server = Server(server_type, server_replica, container_name, container_id, container_port)
