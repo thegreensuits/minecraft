@@ -20,4 +20,8 @@ public abstract class Serializable {
     public static <T> T deserialize(String json, T object, Class<T> clazz) {
         return Serializable.gson.fromJson(json, clazz);
     }
+
+    public String toString() {
+        return this.serialize();
+    }
 }

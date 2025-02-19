@@ -64,7 +64,7 @@ public class Proxy extends StaticInstance<Proxy> {
 
     @Subscribe
     public void onPlayerChooseServer(PlayerChooseInitialServerEvent event) {
-        System.out.println("@player choose " + this.thegreensuits.getServerManager().getServers().keySet());
+        System.out.println("@player choose " + this.thegreensuits.getServerManager().getServers().values());
 
         this.thegreensuits.getServerManager().getServers().values().stream()
                 .filter(server -> server.getType().equals(ServerType.HUB)
