@@ -51,7 +51,6 @@ public class Proxy extends StaticInstance<Proxy> {
 
         // - Initialize TheGreenSuits
         String serverId = this.configManager.getServerId();
-        getLogger().info(serverId);
         if (serverId.equals("-1")) {
             throw new IllegalStateException("server-id is not defined in the configuration file");
         }

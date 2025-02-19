@@ -49,6 +49,7 @@ public class Core extends SpigotPlugin {
 
   @Override()
   public void onEnable() {
+    saveResource("config.yml", false);
     PluginManager pluginManager = Bukkit.getPluginManager();
 
     getLogger().info(getConfig().getString("server.id"));

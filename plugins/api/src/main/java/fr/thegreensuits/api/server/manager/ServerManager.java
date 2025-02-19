@@ -54,8 +54,6 @@ public class ServerManager {
 
         jedis.subscribe(new ServerCreatedListener(), Channels.SERVERS_CREATED.getChannel());
         jedis.subscribe(new ServerUpdatedListener(), Channels.SERVERS_UPDATED.getChannel());
-
-        this.jedis.close();
     }
 
     public void addServer(Server server) {
