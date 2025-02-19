@@ -42,20 +42,25 @@ public class Proxy extends StaticInstance<Proxy> {
     public Proxy(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory) {
         super();
 
-        this.configManager = new ConfigManager(dataDirectory);
-        this.configManager.loadConfig();
+        /*
+         * this.configManager = new ConfigManager(dataDirectory);
+         * this.configManager.loadConfig();
+         */
 
         this.proxy = proxy;
         this.logger = logger;
         this.eventManager = proxy.getEventManager();
 
         // - Initialize TheGreenSuits
-        String serverId = this.configManager.getServerId();
-        if (serverId.equals("-1")) {
-            throw new IllegalStateException("server-id is not defined in the configuration file");
-        }
+        /*
+         * String serverId = this.configManager.getServerId();
+         * if (serverId.equals("-1")) {
+         * throw new
+         * IllegalStateException("server-id is not defined in the configuration file");
+         * }
+         */
 
-        this.thegreensuits = new TheGreenSuitsImpl(serverId);
+        this.thegreensuits = new TheGreenSuitsImpl("proxy:1");
     }
 
     @Override
@@ -74,8 +79,7 @@ public class Proxy extends StaticInstance<Proxy> {
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         this.logger.info("Proxy initializing...");
-        // this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(),
-        // ServerStatus.STARTING);
+        this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(), ServerStatus.STARTING);
 
         // - Register Velocity events listeners
         this.eventManager.register(this, new InitialServerListener(this.proxy));
@@ -89,8 +93,7 @@ public class Proxy extends StaticInstance<Proxy> {
         });
 
         this.logger.info("Proxy initialized");
-        // this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(),
-        // ServerStatus.RUNNING);
+        this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(), ServerStatus.RUNNING);
     }
 
     @Subscribe
@@ -99,9 +102,8 @@ public class Proxy extends StaticInstance<Proxy> {
 
         this.logger.info("Proxy shutdown");
 
-        // this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(),
-        // ServerStatus.STOPPED);
-        // this.thegreensuits.getServerManager().removeServer(this.thegreensuits.getServerId());
+        this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(), ServerStatus.STOPPED);
+        this.thegreensuits.getServerManager().removeServer(this.thegreensuits.getServerId());
     }
 
     private class TheGreenSuitsImpl extends TheGreenSuits {
@@ -116,8 +118,7 @@ public class Proxy extends StaticInstance<Proxy> {
 
         @Override
         public void close() {
-            // this.getServerManager().updateServer(this.getServerId(),
-            // ServerStatus.STOPPING);
+            this.getServerManager().updateServer(this.getServerId(), ServerStatus.STOPPING);
 
             super.close();
         }
