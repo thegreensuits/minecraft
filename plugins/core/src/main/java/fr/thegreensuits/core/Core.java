@@ -34,7 +34,7 @@ public class Core extends SpigotPlugin {
     reloadConfig();
 
     String serverId = getConfig().getString("server.id");
-    System.out.println(serverId);
+    getLogger().info(serverId);
     if (serverId == null || serverId.isEmpty() || serverId.equals("-1")) {
       throw new IllegalStateException("server-id is not defined in the configuration file");
     }
@@ -50,6 +50,8 @@ public class Core extends SpigotPlugin {
   @Override()
   public void onEnable() {
     PluginManager pluginManager = Bukkit.getPluginManager();
+
+    getLogger().info(getConfig().getString("server.id"));
 
     // - Register events listeners
     this.registerEvents(pluginManager);
