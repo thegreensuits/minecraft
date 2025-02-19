@@ -4,7 +4,7 @@ import java.net.InetSocketAddress;
 
 import fr.thegreensuits.api.server.status.ServerStatus;
 import fr.thegreensuits.api.server.type.ServerType;
-import fr.thegreensuits.api.utils.Serializable;
+import fr.thegreensuits.api.utils.serialization.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 

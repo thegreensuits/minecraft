@@ -1,14 +1,11 @@
-package fr.thegreensuits.api.utils;
+package fr.thegreensuits.api.utils.serialization;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import fr.thegreensuits.api.utils.serialization.EnumTypeAdapterFactory;
-
 public abstract class Serializable {
     protected static final Gson gson = createGson();
 
-    // Create a properly configured Gson instance
     private static Gson createGson() {
         return new GsonBuilder()
                 .registerTypeAdapterFactory(new EnumTypeAdapterFactory())

@@ -55,29 +55,15 @@ public class Proxy extends StaticInstance<Proxy> {
     public void registerListeners() {
         Jedis jedis = TheGreenSuits.get().getJedisPool().getResource();
 
-        // - Register Velocity events listeners
-        this.eventManager.register(this, new InitialServerListener(this.proxy));
-
         // - Register Jedis channel events listeners
         jedis.subscribe(new ServerSavedListener(this.proxy, this.logger), Channels.SERVERS_SAVED.getChannel());
     }
 
     @Subscribe
-    public void onPlayerChooseServer(PlayerChooseInitialServerEvent event) {
-        System.out.println("@player choose " + this.thegreensuits.getServerManager().getServers().values());
-
-        this.thegreensuits.getServerManager().getServers().values().stream()
-                .filter(server -> server.getType().equals(ServerType.HUB)
-                        && server.getStatus().equals(ServerStatus.RUNNING))
-                .map(server -> this.proxy.getServer(server.getId()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .findFirst()
-                .ifPresent(event::setInitialServer);
-    }
-
-    @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
+        // - Register Velocity events listeners
+        this.eventManager.register(this, new InitialServerListener(this.proxy));
+
         // - Register current servers on proxy
         this.thegreensuits.getServerManager().getServers().forEach((id, server) -> {
             ServerInfo serverInfo = new ServerInfo(server.getId(), server.buildInetSocketAddress());
