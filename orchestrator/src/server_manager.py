@@ -129,14 +129,14 @@ class ServerManager:
           servers[server_type] = []
 
         # - Check if the server is already in the list using container_id, if not then add it
-        if not any(server.container_id == container_id for server in servers[server_type]):
+        """ if not any(server.container_id == container_id for server in servers[server_type]):
           server = Server(server_type, server_replica, container_name, container_id, container_port)
           servers[server_type].append(server)
 
           self._save_server(server)
         else:
           server = next(server for server in servers[server_type] if server.container_id == container_id)
-          servers[server_type].append(server)
+          servers[server_type].append(server) """
 
     return servers
   

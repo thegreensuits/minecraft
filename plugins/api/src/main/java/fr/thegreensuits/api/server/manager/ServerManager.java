@@ -45,24 +45,7 @@ public class ServerManager {
     private void init() {
         this.logger.info("Loading servers from Redis");
 
-        this.redisHelper.executeVoid(jedis -> {
-            ScanParams scanParams = new ScanParams().match("server:*").count(1000);
-            String cursor = "0";
-
-            do {
-                ScanResult<String> scanResult = jedis.scan(cursor, scanParams);
-                cursor = scanResult.getCursor();
-
-                List<String> keys = scanResult.getResult();
-                for (String key : keys) {
-                    String value = jedis.get(key);
-                    Server server = Server.deserialize(value, Server.class);
-
-                    this.servers.put(server.getId(), server);
-                }
-            } while (!cursor.equals("0"));
-            return null;
-        });
+        this.redisHelper.executeVoid(this::registerServers);
 
         this.logger.info("Loaded " + this.servers.size() + " servers from Redis");
 
@@ -74,6 +57,25 @@ public class ServerManager {
             jedis.subscribe(new ServerUpdatedListener(this), Channels.SERVERS_UPDATED.getChannel());
             return null;
         });
+    }
+
+    private Void registerServers(Jedis jedis) {
+        ScanParams scanParams = new ScanParams().match("server:*").count(1000);
+        String cursor = "0";
+
+        do {
+            ScanResult<String> scanResult = jedis.scan(cursor, scanParams);
+            cursor = scanResult.getCursor();
+
+            List<String> keys = scanResult.getResult();
+            for (String key : keys) {
+                String value = jedis.get(key);
+                Server server = Server.deserialize(value, Server.class);
+
+                this.servers.put(server.getId(), server);
+            }
+        } while (!cursor.equals("0"));
+        return null;
     }
 
     public void addServer(Server server) {

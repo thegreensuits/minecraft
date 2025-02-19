@@ -6,15 +6,16 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 
 import fr.thegreensuits.api.server.Server;
+import fr.thegreensuits.proxy.Proxy;
 import redis.clients.jedis.JedisPubSub;
 
 public class ServerUpdatedListener extends JedisPubSub {
     private final ProxyServer proxy;
     private final Logger logger;
 
-    public ServerUpdatedListener(ProxyServer proxy, Logger logger) {
-        this.proxy = proxy;
-        this.logger = logger;
+    public ServerUpdatedListener(Proxy proxy) {
+        this.proxy = proxy.getProxy();
+        this.logger = proxy.getLogger();
     }
 
     @Override

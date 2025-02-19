@@ -47,21 +47,11 @@ public abstract class TheGreenSuits implements Closeable {
 
   public abstract Logger getLogger();
 
-  public static TheGreenSuits get() {
-    if (_INSTANCE == null) {
-      throw new IllegalStateException("TheGreenSuits is not initialized");
-    }
-    return _INSTANCE;
-  }
-
-  @Override()
-  public void close() {
-    this.executorService.shutdown();
-
-    if (this.jedisPool != null && !this.jedisPool.isClosed())
-      this.jedisPool.close();
-  }
-
+  /**
+   * Setup Redis connection pool
+   * 
+   * @param redisConfig
+   */
   private void setupRedis(RedisConfig redisConfig) {
     if (redisConfig.isEnabled()) {
       ClassLoader previous = Thread.currentThread().getContextClassLoader();
@@ -82,5 +72,20 @@ public abstract class TheGreenSuits implements Closeable {
         this.jedisPool.close();
       }
     }
+  }
+
+  @Override()
+  public void close() {
+    this.executorService.shutdown();
+
+    if (this.jedisPool != null && !this.jedisPool.isClosed())
+      this.jedisPool.close();
+  }
+
+  public static TheGreenSuits get() {
+    if (_INSTANCE == null) {
+      throw new IllegalStateException("TheGreenSuits is not initialized");
+    }
+    return _INSTANCE;
   }
 }
