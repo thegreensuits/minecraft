@@ -4,18 +4,17 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.event.EventManager;
 import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 
 import fr.thegreensuits.api.TheGreenSuits;
+import fr.thegreensuits.api.redis.pubsub.Channels;
 import fr.thegreensuits.api.server.status.ServerStatus;
-import fr.thegreensuits.api.server.type.ServerType;
 import fr.thegreensuits.api.utils.StaticInstance;
 import fr.thegreensuits.proxy.listener.server.InitialServerListener;
-import fr.thegreensuits.proxy.redis.pubsub.Channels;
-import fr.thegreensuits.proxy.redis.pubsub.listener.ServerSavedListener;
+import fr.thegreensuits.proxy.redis.pubsub.listener.ServerCreatedListener;
+import fr.thegreensuits.proxy.redis.pubsub.listener.ServerUpdatedListener;
 import jakarta.inject.Inject;
 import lombok.Getter;
 import redis.clients.jedis.Jedis;
@@ -54,11 +53,14 @@ public class Proxy extends StaticInstance<Proxy> {
         Jedis jedis = TheGreenSuits.get().getJedisPool().getResource();
 
         // - Register Jedis channel events listeners
-        jedis.subscribe(new ServerSavedListener(this.proxy, this.logger), Channels.SERVERS_SAVED.getChannel());
+        jedis.subscribe(new ServerCreatedListener(this.proxy, this.logger), Channels.SERVERS_CREATED.getChannel());
+        jedis.subscribe(new ServerUpdatedListener(this.proxy, this.logger), Channels.SERVERS_UPDATED.getChannel());
     }
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
+        this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(), ServerStatus.STARTING);
+
         // - Register Velocity events listeners
         this.eventManager.register(this, new InitialServerListener(this.proxy));
 
@@ -71,6 +73,7 @@ public class Proxy extends StaticInstance<Proxy> {
         });
 
         this.logger.info("Proxy initialized");
+        this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(), ServerStatus.RUNNING);
     }
 
     @Subscribe
@@ -78,8 +81,22 @@ public class Proxy extends StaticInstance<Proxy> {
         this.thegreensuits.close();
 
         this.logger.info("Proxy shutdown");
+
+        this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(), ServerStatus.STOPPED);
+        this.thegreensuits.getServerManager().removeServer(this.thegreensuits.getServerId());
     }
 
     private class TheGreenSuitsImpl extends TheGreenSuits {
+        @Override
+        public Logger getLogger() {
+            return Proxy.this.getLogger();
+        }
+
+        @Override
+        public void close() {
+            this.getServerManager().updateServer(this.getServerId(), ServerStatus.STOPPING);
+
+            super.close();
+        }
     }
 }

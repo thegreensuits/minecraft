@@ -4,9 +4,12 @@ import java.io.Closeable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.slf4j.Logger;
+
 import fr.thegreensuits.api.config.RedisConfig;
 import fr.thegreensuits.api.server.manager.ServerManager;
 import lombok.Getter;
+import lombok.Setter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -15,17 +18,21 @@ public abstract class TheGreenSuits implements Closeable {
   private static TheGreenSuits _INSTANCE;
 
   @Getter()
+  @Setter()
+  private String serverId;
+
+  @Getter()
   private JedisPool jedisPool;
   @Getter()
   private ExecutorService executorService;
   @Getter()
   private ServerManager serverManager;
 
-  public TheGreenSuits() {
-    this(new RedisConfig(true, "redis", 6379));
+  public TheGreenSuits(String serverId) {
+    this(serverId, new RedisConfig(true, "redis", 6379));
   }
 
-  public TheGreenSuits(RedisConfig redisConfig) {
+  public TheGreenSuits(String serverId, RedisConfig redisConfig) {
     if (_INSTANCE != null) {
       throw new IllegalStateException("TheGreenSuits is already initialized");
     }
@@ -33,9 +40,12 @@ public abstract class TheGreenSuits implements Closeable {
 
     this.setupRedis(redisConfig);
 
+    this.serverId = serverId;
     this.executorService = Executors.newCachedThreadPool();
     this.serverManager = new ServerManager(this);
   }
+
+  public abstract Logger getLogger();
 
   public static TheGreenSuits get() {
     if (_INSTANCE == null) {
@@ -50,9 +60,6 @@ public abstract class TheGreenSuits implements Closeable {
 
     if (this.jedisPool != null && !this.jedisPool.isClosed())
       this.jedisPool.close();
-
-    // - Interrupt network info api
-    // TODO
   }
 
   private void setupRedis(RedisConfig redisConfig) {

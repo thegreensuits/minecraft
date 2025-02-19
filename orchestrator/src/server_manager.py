@@ -170,15 +170,16 @@ class ServerManager:
       if not port:
         self.logger.error(f"No available ports for {server_type}")
         return
-
       container_name = f"{self.container_prefix}-{server_type}-{current_replica}"
+
+      server_id = f"{server_type}:{current_replica}"
 
       container = self.docker.containers.run(
         template.image,
         name=container_name,
         ports={f"{port}/tcp": port},
         network=self.networks[0].name,
-        environment={'PORT': port, 'SERVER_TYPE': server_type},
+        environment={'PORT': port, 'SERVER_TYPE': server_type, 'SERVER_ID': server_id},
         volumes={template.volume: {'bind': "/data", 'mode': 'rw'}} if template.volume else None,
         detach=True,
         restart_policy={"Name": "unless-stopped"}

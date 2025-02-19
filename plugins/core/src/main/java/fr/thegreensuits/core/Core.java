@@ -2,8 +2,12 @@ package fr.thegreensuits.core;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.thegreensuits.api.TheGreenSuits;
+import fr.thegreensuits.api.server.manager.ServerManager;
+import fr.thegreensuits.api.server.status.ServerStatus;
 import fr.thegreensuits.api.spigot.SpigotPlugin;
 import fr.thegreensuits.core.listener.chat.AsyncChatListener;
 import fr.thegreensuits.core.listener.player.AsyncPlayerPreLoginListener;
@@ -14,22 +18,32 @@ import fr.thegreensuits.core.listener.player.PlayerQuitListener;
 import fr.thegreensuits.core.player.event.PlayerManagerImpl;
 
 public class Core extends SpigotPlugin {
-  private final TheGreenSuits thegreensuits;
+  private TheGreenSuits thegreensuits;
+  private ServerManager serverManager;
 
   private final PlayerManagerImpl playerManager;
 
   public Core() {
     super();
 
-    // - Initialize TheGreenSuits
-    this.thegreensuits = new TheGreenSuitsImpl();
-
     this.playerManager = new PlayerManagerImpl();
   }
 
   @Override()
   public void onLoad() {
+    reloadConfig();
+
+    String serverId = getConfig().getString("server-id");
+    if (serverId == null || serverId.isEmpty() || serverId.equals("-1")) {
+      throw new IllegalStateException("server-id is not defined in the configuration file");
+    }
+
+    // - Initialize TheGreenSuits
+    this.thegreensuits = new TheGreenSuitsImpl(serverId);
+    this.serverManager = this.thegreensuits.getServerManager();
+
     getLogger().info("Core loaded");
+    this.serverManager.updateServer(this.thegreensuits.getServerId(), ServerStatus.STARTING, true);
   }
 
   @Override()
@@ -40,6 +54,8 @@ public class Core extends SpigotPlugin {
     this.registerEvents(pluginManager);
 
     getLogger().info("Core enabled");
+
+    this.serverManager.updateServer(this.thegreensuits.getServerId(), ServerStatus.RUNNING, true);
   }
 
   private void registerEvents(PluginManager pluginManager) {
@@ -61,6 +77,9 @@ public class Core extends SpigotPlugin {
     this.thegreensuits.close();
 
     getLogger().info("Core disabled");
+
+    this.serverManager.updateServer(this.thegreensuits.getServerId(), ServerStatus.STOPPED, true);
+    this.serverManager.removeServer(this.thegreensuits.getServerId());
   }
 
   @Override
@@ -69,5 +88,20 @@ public class Core extends SpigotPlugin {
   }
 
   private class TheGreenSuitsImpl extends TheGreenSuits {
+    public TheGreenSuitsImpl(String serverId) {
+      super(serverId);
+    }
+
+    @Override
+    public Logger getLogger() {
+      return LoggerFactory.getLogger(Core.class);
+    }
+
+    @Override
+    public void close() {
+      this.getServerManager().updateServer(this.getServerId(), ServerStatus.STOPPING, true);
+
+      super.close();
+    }
   }
 }
