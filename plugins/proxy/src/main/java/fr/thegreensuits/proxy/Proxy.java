@@ -50,13 +50,12 @@ public class Proxy extends StaticInstance<Proxy> {
         this.eventManager = proxy.getEventManager();
 
         // - Initialize TheGreenSuits
-
         String serverId = this.configManager.getServerId();
         if (serverId.equals("-1")) {
             throw new IllegalStateException("server-id is not defined in the configuration file");
         }
 
-        this.thegreensuits = new TheGreenSuitsImpl("proxy:1");
+        this.thegreensuits = new TheGreenSuitsImpl(serverId);
     }
 
     @Override
