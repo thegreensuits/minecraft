@@ -35,6 +35,9 @@ public class ServerManager {
 
         // - Load servers from redis
         this.thegreensuits.getExecutorService().execute(() -> this.init());
+
+        this.jedis.subscribe(new ServerCreatedListener(), Channels.SERVERS_CREATED.getChannel());
+        this.jedis.subscribe(new ServerUpdatedListener(), Channels.SERVERS_UPDATED.getChannel());
     }
 
     private void init() {
@@ -63,9 +66,6 @@ public class ServerManager {
 
         // - Register listeners
         this.logger.info("Registering Redis channel listeners");
-
-        this.jedis.subscribe(new ServerCreatedListener(), Channels.SERVERS_CREATED.getChannel());
-        this.jedis.subscribe(new ServerUpdatedListener(), Channels.SERVERS_UPDATED.getChannel());
     }
 
     public void addServer(Server server) {
