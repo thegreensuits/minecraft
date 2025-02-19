@@ -61,8 +61,10 @@ public class ServerManager {
         // - Register listeners
         this.thegreensuits.getLogger().info("Registering Redis channel listeners");
 
-        jedis.subscribe(new ServerCreatedListener(), Channels.SERVERS_CREATED.getChannel());
-        jedis.subscribe(new ServerUpdatedListener(), Channels.SERVERS_UPDATED.getChannel());
+        this.jedis.subscribe(new ServerCreatedListener(), Channels.SERVERS_CREATED.getChannel());
+        this.jedis.subscribe(new ServerUpdatedListener(), Channels.SERVERS_UPDATED.getChannel());
+
+        this.jedis.close();
     }
 
     public void addServer(Server server) {

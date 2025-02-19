@@ -31,8 +31,10 @@ public class Proxy extends StaticInstance<Proxy> {
 
     @Getter
     private final ProxyServer proxy;
-    @Getter
-    private final ConfigManager configManager;
+    /*
+     * @Getter
+     * private final ConfigManager configManager;
+     */
     private final EventManager eventManager;
 
     @Getter
