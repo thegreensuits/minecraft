@@ -15,10 +15,10 @@ dependencies {
     shadow("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
 
+    shadow(project(":plugins:api"))
+
     implementation("redis.clients:jedis:5.2.0")
     implementation("org.spongepowered:configurate-yaml:4.1.2")
-
-    implementation(project(":plugins:api"))
 
     compileOnly("org.projectlombok:lombok:1.18.36")
     annotationProcessor("org.projectlombok:lombok:1.18.36")

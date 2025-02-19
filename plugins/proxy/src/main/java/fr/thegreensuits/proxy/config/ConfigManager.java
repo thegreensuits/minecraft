@@ -15,7 +15,7 @@ public class ConfigManager {
     this.configPath = dataFolder.resolve("config.yml");
 
     this.loader = YamlConfigurationLoader.builder()
-        .path(configPath) // set the config file path
+        .path(configPath)
         .build();
   }
 

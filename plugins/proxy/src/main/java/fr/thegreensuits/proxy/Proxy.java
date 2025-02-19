@@ -73,6 +73,7 @@ public class Proxy extends StaticInstance<Proxy> {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
+        this.logger.info("Proxy initializing...");
         this.thegreensuits.getServerManager().updateServer(this.thegreensuits.getServerId(), ServerStatus.STARTING);
 
         // - Register Velocity events listeners
