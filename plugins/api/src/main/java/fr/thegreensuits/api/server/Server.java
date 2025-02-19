@@ -2,6 +2,8 @@ package fr.thegreensuits.api.server;
 
 import java.net.InetSocketAddress;
 
+import com.google.gson.annotations.SerializedName;
+
 import fr.thegreensuits.api.server.status.ServerStatus;
 import fr.thegreensuits.api.server.type.ServerType;
 import fr.thegreensuits.api.utils.serialization.Serializable;
@@ -16,27 +18,23 @@ public class Server extends Serializable {
     private final ServerType type;
 
     // - Orchestrator data
-    @SuppressWarnings("unused")
-    private String container_id;
-    @SuppressWarnings("unused")
+    @SerializedName("container_id")
+    private String containerId;
+    @SerializedName("replica")
     private Integer replica;
 
     @Getter
     @Setter
     private ServerStatus status;
 
-    public Server(String id, String address, String port, ServerType type, ServerStatus status) {
+    public Server(String id, String address, String port, ServerType type, ServerStatus status, String containerId,
+            Integer replica) {
         this.id = id;
         this.address = address;
         this.port = port;
         this.type = type;
         this.status = status;
-    }
-
-    public Server(String id, String address, String port, ServerType type, ServerStatus status, String container_id,
-            Integer replica) {
-        this(id, address, port, type, status);
-        this.container_id = container_id;
+        this.containerId = containerId;
         this.replica = replica;
     }
 

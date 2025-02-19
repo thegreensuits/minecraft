@@ -31,10 +31,17 @@ public class Core extends SpigotPlugin {
 
   @Override()
   public void onLoad() {
-    reloadConfig();
+    this.getLogger().info("Core loaded");
+    // this.serverManager.updateServer(this.thegreensuits.getServerId(),
+    // ServerStatus.STARTING, true);
+  }
+
+  @Override()
+  public void onEnable() {
+    saveDefaultConfig();
+    PluginManager pluginManager = Bukkit.getPluginManager();
 
     String serverId = getConfig().getString("server.id");
-    getLogger().info(serverId);
     if (serverId == null || serverId.isEmpty() || serverId.equals("-1")) {
       throw new IllegalStateException("server-id is not defined in the configuration file");
     }
@@ -43,21 +50,10 @@ public class Core extends SpigotPlugin {
     this.thegreensuits = new TheGreenSuitsImpl(serverId);
     this.serverManager = this.thegreensuits.getServerManager();
 
-    getLogger().info("Core loaded");
-    this.serverManager.updateServer(this.thegreensuits.getServerId(), ServerStatus.STARTING, true);
-  }
-
-  @Override()
-  public void onEnable() {
-    saveDefaultConfig();
-    PluginManager pluginManager = Bukkit.getPluginManager();
-
-    getLogger().info(getConfig().getString("server.id"));
-
     // - Register events listeners
     this.registerEvents(pluginManager);
 
-    getLogger().info("Core enabled");
+    this.getLogger().info("Core enabled");
 
     this.serverManager.updateServer(this.thegreensuits.getServerId(), ServerStatus.RUNNING, true);
   }
@@ -80,7 +76,7 @@ public class Core extends SpigotPlugin {
   public void onDisable() {
     this.thegreensuits.close();
 
-    getLogger().info("Core disabled");
+    this.getLogger().info("Core disabled");
 
     this.serverManager.updateServer(this.thegreensuits.getServerId(), ServerStatus.STOPPED, true);
     this.serverManager.removeServer(this.thegreensuits.getServerId());
@@ -103,7 +99,7 @@ public class Core extends SpigotPlugin {
 
     @Override
     public void close() {
-      this.getServerManager().updateServer(this.getServerId(), ServerStatus.STOPPING, true);
+      Core.this.serverManager.updateServer(this.getServerId(), ServerStatus.STOPPING, true);
 
       super.close();
     }

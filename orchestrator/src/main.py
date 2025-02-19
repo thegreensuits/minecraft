@@ -63,7 +63,6 @@ class Orchestrator:
                                           os.environ.get("SERVER_TEMPLATE_SURVIVAL_END_PORT", "25100"),
                                           os.environ.get("SERVER_TEMPLATE_SURVIVAL_MIN_RAM", 1 * 1024),
                                           os.environ.get("SERVER_TEMPLATE_SURVIVAL_MAX_RAM", 8 * 1024),
-                                          min_replicas=0,
                                           schedule_delay=os.environ.get("SERVER_TEMPLATE_SURVIVAL_SCHEDULE_DELAY", 30),
                                           volume=survival_volume.name),
     }
