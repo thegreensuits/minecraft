@@ -91,7 +91,7 @@ public class ServerManager {
     public void updateServer(Server server) {
         this.servers.put(server.getId(), server);
 
-        this.jedis.set("server:" + server.getId(), server.serialize());
+        // this.jedis.set("server:" + server.getId(), server.serialize());
     }
 
     public void updateServer(Server server, Boolean broadcastChanges) {
