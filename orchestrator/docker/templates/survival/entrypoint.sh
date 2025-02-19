@@ -14,7 +14,7 @@ if [ -z "$SERVER_ID" ]; then
   exit 1
 fi
 
-sed -i "s/^server.id: .*/server.id: ${SERVER_ID}/" "$CONFIG_PATH"
+sed -i "s/^  id: .*/  id: ${SERVER_ID}/" "$CONFIG_PATH"
 echo "Updated server.id to ${SERVER_ID} in $CONFIG_PATH"
 
 # Start Paper server with custom memory settings

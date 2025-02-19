@@ -33,7 +33,8 @@ public class Core extends SpigotPlugin {
   public void onLoad() {
     reloadConfig();
 
-    String serverId = getConfig().getString("server-id");
+    String serverId = getConfig().getString("server.id");
+    System.out.println(serverId);
     if (serverId == null || serverId.isEmpty() || serverId.equals("-1")) {
       throw new IllegalStateException("server-id is not defined in the configuration file");
     }

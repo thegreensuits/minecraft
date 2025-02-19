@@ -31,15 +31,6 @@ COPY paper-global.yml /minecraft/config/paper-global.yml
 COPY server.properties /minecraft/server.properties
 COPY spigot.yml /minecraft/spigot.yml
 
-# Remove world player-specific data if exists
-RUN rm -rf \
-  /minecraft/world/advancements \
-  /minecraft/world/playerdata \
-  /minecraft/world/stats \
-  /minecraft/world/session.lock \
-  /minecraft/world/entities \
-  /minecraft/world/region
-
 # Set working directory
 WORKDIR /minecraft
 
