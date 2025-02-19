@@ -14,9 +14,11 @@ import lombok.Getter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
+import org.slf4j.Logger;
 
 public class ServerManager {
     private final TheGreenSuits thegreensuits;
+    private final Logger logger;
     private final Jedis jedis;
 
     @Getter
@@ -25,17 +27,18 @@ public class ServerManager {
     public ServerManager(TheGreenSuits thegreensuits) {
         // - Initialize TheGreenSuits
         this.thegreensuits = thegreensuits;
+        this.logger = thegreensuits.getLogger();
         this.jedis = thegreensuits.getJedisPool().getResource();
 
         // - Initialize servers
         this.servers = new HashMap<>();
 
         // - Load servers from redis
-        this.init();
+        this.thegreensuits.getExecutorService().execute(() -> this.init());
     }
 
     private void init() {
-        this.thegreensuits.getLogger().info("Loading servers from Redis");
+        this.logger.info("Loading servers from Redis");
 
         String cursor = "0";
         ScanParams params = new ScanParams().match("server:*").count(100);
@@ -51,20 +54,18 @@ public class ServerManager {
                     Server server = Server.deserialize(json, Server.class);
                     this.addServer(server);
 
-                    this.thegreensuits.getLogger().info("Loaded server: " + server.getId());
+                    this.logger.info("Loaded server: " + server.getId());
                 }
             }
         } while (!cursor.equals("0"));
 
-        this.thegreensuits.getLogger().info("Loaded " + this.servers.size() + " servers from Redis");
+        this.logger.info("Loaded " + this.servers.size() + " servers from Redis");
 
         // - Register listeners
-        this.thegreensuits.getLogger().info("Registering Redis channel listeners");
+        this.logger.info("Registering Redis channel listeners");
 
         this.jedis.subscribe(new ServerCreatedListener(), Channels.SERVERS_CREATED.getChannel());
         this.jedis.subscribe(new ServerUpdatedListener(), Channels.SERVERS_UPDATED.getChannel());
-
-        this.jedis.close();
     }
 
     public void addServer(Server server) {

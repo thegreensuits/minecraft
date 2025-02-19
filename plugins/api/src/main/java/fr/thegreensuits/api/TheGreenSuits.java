@@ -74,9 +74,9 @@ public abstract class TheGreenSuits implements Closeable {
 
       try (Jedis jedis = this.jedisPool.getResource()) {
         jedis.ping();
-        System.out.println("[TheGreenSuits] Redis connection established");
+        this.getLogger().info("Redis connection established");
       } catch (Exception e) {
-        System.err.println("[TheGreenSuits] Redis connection failed");
+        this.getLogger().info("Redis connection failed");
         e.printStackTrace();
 
         this.jedisPool.close();

@@ -31,10 +31,8 @@ public class Proxy extends StaticInstance<Proxy> {
 
     @Getter
     private final ProxyServer proxy;
-    /*
-     * @Getter
-     * private final ConfigManager configManager;
-     */
+    @Getter
+    private final ConfigManager configManager;
     private final EventManager eventManager;
 
     @Getter
@@ -44,23 +42,19 @@ public class Proxy extends StaticInstance<Proxy> {
     public Proxy(ProxyServer proxy, Logger logger, @DataDirectory Path dataDirectory) {
         super();
 
-        /*
-         * this.configManager = new ConfigManager(dataDirectory);
-         * this.configManager.loadConfig();
-         */
+        this.configManager = new ConfigManager(dataDirectory);
+        this.configManager.loadConfig();
 
         this.proxy = proxy;
         this.logger = logger;
         this.eventManager = proxy.getEventManager();
 
         // - Initialize TheGreenSuits
-        /*
-         * String serverId = this.configManager.getServerId();
-         * if (serverId.equals("-1")) {
-         * throw new
-         * IllegalStateException("server-id is not defined in the configuration file");
-         * }
-         */
+
+        String serverId = this.configManager.getServerId();
+        if (serverId.equals("-1")) {
+            throw new IllegalStateException("server-id is not defined in the configuration file");
+        }
 
         this.thegreensuits = new TheGreenSuitsImpl("proxy:1");
     }
