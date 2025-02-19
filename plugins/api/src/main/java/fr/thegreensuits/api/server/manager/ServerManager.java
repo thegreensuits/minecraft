@@ -79,10 +79,7 @@ public class ServerManager {
     public void updateServer(Server server) {
         this.servers.put(server.getId(), server);
 
-        Jedis jedis = this.thegreensuits.getJedisPool().getResource();
-
-        jedis.set("server:" + server.getId(), server.serialize());
-        jedis.close();
+        this.jedis.set("server:" + server.getId(), server.serialize());
     }
 
     public void updateServer(Server server, Boolean broadcastChanges) {
