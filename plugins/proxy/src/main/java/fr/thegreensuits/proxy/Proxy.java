@@ -20,8 +20,6 @@ import jakarta.inject.Inject;
 import lombok.Getter;
 import redis.clients.jedis.Jedis;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 
 @Plugin(id = "proxy", name = "Proxy", version = BuildConstants.VERSION, description = BuildConstants.DESCRIPTION)

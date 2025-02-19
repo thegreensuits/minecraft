@@ -2,6 +2,7 @@ package fr.thegreensuits.proxy.listener.server;
 
 import java.util.Optional;
 
+import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -18,12 +19,12 @@ public class InitialServerListener {
         this.thegreensuits = TheGreenSuits.get();
     }
 
-    @Subscribe
+    @Subscribe(order = PostOrder.FIRST)
     public void onPlayerChooseServer(PlayerChooseInitialServerEvent event) {
         this.thegreensuits.getServerManager().getServers().values().stream()
                 .filter(server -> server.getType().equals(ServerType.HUB))
                 // && server.getStatus().equals(ServerStatus.RUNNING))
-                .map(server -> this.proxy.getServer(server.getAddress()))
+                .map(server -> this.proxy.getServer(server.getId()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst()
