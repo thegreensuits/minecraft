@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 
 import fr.thegreensuits.api.TheGreenSuits;
-import fr.thegreensuits.api.config.RedisConfig;
 import fr.thegreensuits.api.spigot.SpigotPlugin;
 import fr.thegreensuits.core.listener.chat.AsyncChatListener;
 import fr.thegreensuits.core.listener.player.AsyncPlayerPreLoginListener;
@@ -23,9 +22,7 @@ public class Core extends SpigotPlugin {
     super();
 
     // - Initialize TheGreenSuits
-    RedisConfig redisConfig = new RedisConfig(true, "localhost", 6379);
-
-    this.thegreensuits = new TheGreenSuitsImpl(redisConfig);
+    this.thegreensuits = new TheGreenSuitsImpl();
 
     this.playerManager = new PlayerManagerImpl();
   }
@@ -72,8 +69,5 @@ public class Core extends SpigotPlugin {
   }
 
   private class TheGreenSuitsImpl extends TheGreenSuits {
-    public TheGreenSuitsImpl(RedisConfig redisConfig) {
-      super(redisConfig);
-    }
   }
 }

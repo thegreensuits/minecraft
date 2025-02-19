@@ -7,6 +7,10 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - database
+      - minecraft
 
   main:
     build:
@@ -19,6 +23,9 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+    restart: unless-stopped
+    networks:
+      - database
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -32,3 +39,9 @@ services:
 volumes:
   portainer-data:
   redis-data:
+
+networks:
+  database:
+  minecraft:
+    driver: bridge
+    name: minecraft

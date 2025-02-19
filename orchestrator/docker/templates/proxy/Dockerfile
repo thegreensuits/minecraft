@@ -1,4 +1,4 @@
-FROM gradle:jdk22
+FROM gradle:jdk21
 
 # Environment variables
 ENV VELOCITY_VERSION=3.4.0-SNAPSHOT

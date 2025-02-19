@@ -9,7 +9,6 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 
 import fr.thegreensuits.api.TheGreenSuits;
-import fr.thegreensuits.api.config.RedisConfig;
 import fr.thegreensuits.proxy.listener.server.InitialServerListener;
 import fr.thegreensuits.proxy.redis.pubsub.Channels;
 import fr.thegreensuits.proxy.redis.pubsub.listener.ServerSavedListener;
@@ -34,8 +33,7 @@ public class Proxy {
         this.eventManager = proxy.getEventManager();
 
         // - Initialize TheGreenSuits
-        RedisConfig redisConfig = new RedisConfig(true, "127.0.0.1", 6379);
-        this.thegreensuits = new TheGreenSuitsImpl(redisConfig);
+        this.thegreensuits = new TheGreenSuitsImpl();
     }
 
     public void registerListeners() {
@@ -50,8 +48,6 @@ public class Proxy {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        System.out.println("@proxy init " + this.thegreensuits.getServerManager().getServers().keySet());
-
         // - Register current servers on proxy
         this.thegreensuits.getServerManager().getServers().forEach((id, server) -> {
             ServerInfo serverInfo = new ServerInfo(server.getId(), server.buildInetSocketAddress());
@@ -69,8 +65,5 @@ public class Proxy {
     }
 
     private class TheGreenSuitsImpl extends TheGreenSuits {
-        public TheGreenSuitsImpl(RedisConfig redisConfig) {
-            super(redisConfig);
-        }
     }
 }

@@ -21,6 +21,10 @@ public abstract class TheGreenSuits implements Closeable {
   @Getter()
   private ServerManager serverManager;
 
+  public TheGreenSuits() {
+    this(new RedisConfig(true, "redis", 6379));
+  }
+
   public TheGreenSuits(RedisConfig redisConfig) {
     if (_INSTANCE != null) {
       throw new IllegalStateException("TheGreenSuits is already initialized");

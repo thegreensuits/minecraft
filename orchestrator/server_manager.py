@@ -84,7 +84,7 @@ class ServerManager:
   def __init__(self,
                redis: Redis,
                docker: DockerClient,
-               network,
+               networks,
                container_prefix: str,
                templates: Dict[ServerType, ServerTemplate],
                logger: logging.Logger = None,
@@ -94,7 +94,7 @@ class ServerManager:
 
     self.redis = redis
     self.docker = docker
-    self.network = network
+    self.networks = networks
     self.container_prefix = container_prefix
     self.templates = templates
     self.redis_channels = redis_channels
@@ -104,7 +104,9 @@ class ServerManager:
   def get_servers(self, container_prefix: str) -> Dict[ServerType, List[Server]]:
     servers: Dict[ServerType, List[Server]] = {server_type: [] for server_type in ServerType}
 
-    for container in self.docker.containers.list(filters={"network": self.network.name}):
+    servers_network = self.docker.networks.get(self.networks[0])
+
+    for container in self.docker.containers.list(filters={"network": servers_network.name}):
       container_name = container.name
 
       if(container_name.startswith(container_prefix)):
@@ -113,7 +115,6 @@ class ServerManager:
 
         container_id = container.id
 
-        # - Get the port of the container, it can be a range so we need to get the first one
         container_port = next(iter(container.ports.keys())).split("/")[0]
 
         if not servers.get(server_type):
@@ -168,12 +169,16 @@ class ServerManager:
         template.image,
         name=container_name,
         ports={f"{port}/tcp": port},
-        network=self.network.name,
+        network=self.networks[0],
         environment={'PORT': port, 'SERVER_TYPE': server_type},
         volumes={template.volume: {'bind': "/data", 'mode': 'rw'}} if template.volume else None,
         detach=True,
         restart_policy={"Name": "unless-stopped"}
       )
+
+      # - Connect all networks to the container
+      for network in self.networks.values():
+        container.connect(network)
 
       server = Server(server_type, current_replica, container_name, container.id, port)
       self.servers[server_type].append(server)

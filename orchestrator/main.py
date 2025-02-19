@@ -15,7 +15,7 @@ class Orchestrator:
                docker_socket=os.environ.get("DOCKER_SOCKET", "unix://var/run/docker.sock"),
                docker_api_version=os.environ.get("DOCKER_API_VERSION", "1.40"),
                docker_container_prefix=os.environ.get("DOCKER_CONTAINER_PREFIX", "orchestrator"),
-               docker_network_main=os.environ.get("DOCKER_NETWORK_MAIN", "orchestrator_main"),
+               docker_network_main=os.environ.get("DOCKER_NETWORK_MAIN", "minecraft"),
                redis_host=os.environ.get("REDIS_HOST", "localhost"),
                redis_port=os.environ.get("REDIS_PORT", 6379),
                redis_db=os.environ.get("REDIS_DB", 0),
@@ -35,7 +35,7 @@ class Orchestrator:
     }
     
     self.docker = docker.DockerClient(base_url=docker_socket, version=docker_api_version)
-    docker_network = self.get_or_create_docker_network(docker_network_main)
+    docker_networks = [self.get_or_create_docker_network(docker_network_main)]
 
     survival_volume = self.get_or_create_docker_volume(os.environ.get("DOCKER_VOLUME_SURVIVAL", "survival"))
 
@@ -67,7 +67,7 @@ class Orchestrator:
                                           volume=survival_volume.name),
     }
 
-    self.server_manager = ServerManager(self.redis, self.docker, docker_network, docker_container_prefix, templates, logger=self.logger, redis_channels=self.redis_channels)
+    self.server_manager = ServerManager(self.redis, self.docker, docker_networks, docker_container_prefix, templates, logger=self.logger, redis_channels=self.redis_channels)
 
   def start(self):
     self.logger.info("Starting orchestrator...")
