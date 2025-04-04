@@ -3,7 +3,6 @@ package fr.thegreensuits.api.server.manager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 import fr.thegreensuits.api.TheGreenSuits;
 import fr.thegreensuits.api.redis.pubsub.Channels;
@@ -11,7 +10,7 @@ import fr.thegreensuits.api.redis.pubsub.listener.ServerCreatedListener;
 import fr.thegreensuits.api.redis.pubsub.listener.ServerUpdatedListener;
 import fr.thegreensuits.api.server.Server;
 import fr.thegreensuits.api.server.status.ServerStatus;
-import fr.thegreensuits.api.utils.helper.RedisHelper;
+import fr.thegreensuits.api.utils.helper.RedisExecutor;
 import lombok.Getter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.ScanParams;
@@ -21,8 +20,7 @@ import org.slf4j.Logger;
 public class ServerManager {
     private final TheGreenSuits thegreensuits;
     private final Logger logger;
-    private final RedisHelper redisHelper;
-    private final ExecutorService executorService;
+    private final RedisExecutor redisExecutor;
 
     @Getter
     private final Map<String, Server> servers;
@@ -31,8 +29,7 @@ public class ServerManager {
         // - Initialize TheGreenSuits
         this.thegreensuits = thegreensuits;
         this.logger = thegreensuits.getLogger();
-        this.redisHelper = new RedisHelper(this.thegreensuits.getJedisPool());
-        this.executorService = thegreensuits.getExecutorService();
+        this.redisExecutor = new RedisExecutor(this.thegreensuits.getJedisPool());
 
         // - Initialize servers
         this.servers = new HashMap<>();
@@ -44,18 +41,21 @@ public class ServerManager {
     private void init() {
         this.logger.info("Loading servers from Redis");
 
-        this.redisHelper.executeVoid(this::registerServers);
+        this.redisExecutor.executeVoid(this::registerServers);
 
         this.logger.info("Loaded " + this.servers.size() + " servers from Redis");
 
         // - Register listeners
         this.logger.info("Registering Redis channel listeners");
 
-        this.redisHelper.executeVoid(jedis -> {
+        this.redisExecutor.executeVoid(jedis -> {
             jedis.subscribe(new ServerCreatedListener(this), Channels.SERVERS_CREATED.getChannel());
             jedis.subscribe(new ServerUpdatedListener(this), Channels.SERVERS_UPDATED.getChannel());
             return null;
         });
+
+        this.logger.info("Registered Redis channel listeners");
+        this.logger.info("ServerManager initialized");
     }
 
     private Void registerServers(Jedis jedis) {
@@ -100,7 +100,7 @@ public class ServerManager {
     public void updateServer(Server server) {
         this.servers.put(server.getId(), server);
 
-        this.redisHelper.executeVoid(jedis -> {
+        this.redisExecutor.executeVoid(jedis -> {
             jedis.set("server:" + server.getId(), server.serialize());
             return null;
         });
@@ -111,7 +111,7 @@ public class ServerManager {
 
         // - Broadcast server update to Redis channel
         if (broadcastChanges) {
-            this.redisHelper.executeVoid(jedis -> {
+            this.redisExecutor.executeVoid(jedis -> {
                 jedis.publish(Channels.SERVERS_UPDATED.getChannel(), server.serialize());
                 return null;
             });

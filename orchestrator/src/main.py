@@ -47,6 +47,7 @@ class Orchestrator:
                                        os.environ.get("SERVER_TEMPLATE_PROXY_START_PORT", "25565"),
                                        os.environ.get("SERVER_TEMPLATE_PROXY_END_PORT", "25600"),
                                        schedule_delay=os.environ.get("SERVER_TEMPLATE_PROXY_SCHEDULE_DELAY", 30)),
+
       ServerType.HUB: ServerTemplate(os.environ.get("SERVER_TEMPLATE_HUB_IMAGE", "minecraft-hub:latest"),
                                       ServerType.HUB,
                                       os.environ.get("SERVER_TEMPLATE_HUB_MAX_PLAYERS", 50),
@@ -56,6 +57,7 @@ class Orchestrator:
                                       os.environ.get("SERVER_TEMPLATE_HUB_MAX_RAM", 4 * 1024),
                                       min_replicas=0,
                                       schedule_delay=os.environ.get("SERVER_TEMPLATE_HUB_SCHEDULE_DELAY", 10)),
+
       ServerType.SURVIVAL: ServerTemplate(os.environ.get("SERVER_TEMPLATE_SURVIVAL_IMAGE", "minecraft-survival:latest"),
                                           ServerType.SURVIVAL,
                                           os.environ.get("SERVER_TEMPLATE_SURVIVAL_MAX_PLAYERS", 50),

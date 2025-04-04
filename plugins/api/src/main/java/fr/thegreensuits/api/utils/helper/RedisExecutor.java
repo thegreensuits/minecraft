@@ -5,10 +5,10 @@ import redis.clients.jedis.JedisPool;
 
 import java.util.function.Function;
 
-public class RedisHelper {
+public class RedisExecutor {
     private final JedisPool jedisPool;
 
-    public RedisHelper(JedisPool jedisPool) {
+    public RedisExecutor(JedisPool jedisPool) {
         this.jedisPool = jedisPool;
     }
 
